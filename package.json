@@ -41,7 +41,62 @@
     "configuration": {
       "type": "object",
       "title": "ext-name",
-      "properties": {}
+      "properties": {
+        "ext-name.imports": {
+          "type": "array",
+          "default": [],
+          "description": "Imports to be used in the extension",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "The module from which to import"
+              },
+              "name": {
+                "type": "string",
+                "description": "The variable name to use for the import"
+              },
+              "kind": {
+                "type": "string",
+                "default": "Variable",
+                "description": "The kind of import, affects the icon shown in the editor and the sorting order of the completion suggestions",
+                "enum": [
+                  "Text",
+                  "Method",
+                  "Function",
+                  "Constructor",
+                  "Field",
+                  "Variable",
+                  "Class",
+                  "Interface",
+                  "Module",
+                  "Property",
+                  "Unit",
+                  "Value",
+                  "Enum",
+                  "Keyword",
+                  "Snippet",
+                  "Color",
+                  "File",
+                  "Reference",
+                  "Folder",
+                  "EnumMember",
+                  "Constant",
+                  "Struct",
+                  "Event",
+                  "Operator",
+                  "TypeParameter",
+                  "User",
+                  "Issue" 
+                ]
+              }
+            },
+            "required": ["source", "name"]
+          }
+
+        }
+      }
     }
   },
   "scripts": {

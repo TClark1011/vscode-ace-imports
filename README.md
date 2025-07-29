@@ -1,32 +1,13 @@
-# ext-name
+# Name To Come
 
-<a href="https://marketplace.visualstudio.com/items?itemName=antfu.ext-name" target="__blank"><img src="https://img.shields.io/visual-studio-marketplace/v/antfu.ext-name.svg?color=eee&amp;label=VS%20Code%20Marketplace&logo=visual-studio-code" alt="Visual Studio Marketplace Version" /></a>
-<a href="https://kermanx.github.io/reactive-vscode/" target="__blank"><img src="https://img.shields.io/badge/made_with-reactive--vscode-%23007ACC?style=flat&labelColor=%23229863"  alt="Made with reactive-vscode" /></a>
+## Developing
 
-## Configurations
+Alter the extension config (commands, settings, etc) in `package.json` and then run `ni` to update the generated files.
 
-<!-- configs -->
+To test the extension, run the `Extension` launch configuration in VS Code. When you are finished, you may have to manually terminate the `dev` task in the terminal.
 
-**No data**
+**Important:** This project uses `reactive-vscode`, so check in the docs for that when developing, it changes alot of aspects of developing VS Code extensions.
 
-<!-- configs -->
-
-## Commands
-
-<!-- commands -->
-
-**No data**
-
-<!-- commands -->
-
-## Sponsors
-
-<p align="center">
-  <a href="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/antfu/static/sponsors.png'/>
-  </a>
-</p>
-
-## License
-
-[MIT](./LICENSE.md) License © 2022 [Anthony Fu](https://github.com/antfu)
+## Todo
+- [ ] Prevent duplicate import statements
+- [ ] Description comment on left side of auto import item
