@@ -12,3 +12,4 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 - [x] Prevent duplicate import statements
 - [ ] Description comment on left side of auto import item
 - [ ] Only show imports from installed packages
+- [ ] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
