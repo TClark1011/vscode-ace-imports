@@ -1,5 +1,5 @@
 import { defineExtension } from 'reactive-vscode'
-import { CompletionItemKind, languages, Position, Range, TextEdit, window } from 'vscode'
+import { CompletionItemKind, CompletionItemTag, languages, Position, Range, TextEdit, window } from 'vscode'
 import { config } from './config'
 
 function textEditInsertAtStart(text: string) {
@@ -12,6 +12,7 @@ function textEditInsertAtStart(text: string) {
   )
 }
 
+
 const { activate, deactivate } = defineExtension(() => {
   const output = window.createOutputChannel('ext-name')
 
@@ -23,9 +24,13 @@ const { activate, deactivate } = defineExtension(() => {
       scheme: 'file',
     },
     {
-      provideCompletionItems() {
-        return config.imports.map(item => {
-          const importStatement = `import * as ${item.name} from '${item.source ?? ''}'`
+      provideCompletionItems(document) {
+        const notAlreadyImported =
+          config.imports.filter(item => 
+            !document.getText().includes(`import * as ${item.name}`))
+          
+        return notAlreadyImported.map(item => {
+          const importStatement = `import * as ${item.name} from '${item.source}'`
           return ({
             label: item.name,
             kind: CompletionItemKind[item.kind ?? 'Variable'],
@@ -33,6 +38,7 @@ const { activate, deactivate } = defineExtension(() => {
             insertText: item.name,
             detail: importStatement,
             documentation: `documentation for ${item.name}`,
+
           })
         })
       },

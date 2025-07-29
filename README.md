@@ -9,5 +9,6 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 **Important:** This project uses `reactive-vscode`, so check in the docs for that when developing, it changes alot of aspects of developing VS Code extensions.
 
 ## Todo
-- [ ] Prevent duplicate import statements
+- [x] Prevent duplicate import statements
 - [ ] Description comment on left side of auto import item
+- [ ] Only show imports from installed packages
