@@ -36,3 +36,4 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Do not show suggestions when its not a valid usage context
 - [ ] Enable for javascript (have to create a second provider with `javascript` language)
 - [ ] Allow multiple names
+- [ ] Option to run sort import action when accepting completion
