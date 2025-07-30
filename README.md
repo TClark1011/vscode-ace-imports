@@ -29,3 +29,4 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Option to make the completion suggestion have higher priority than other completions (eg; so it shows up first in the list)
 - [ ] Custom icon
 - [ ] Improve mechanism for determining if a package is installed
+- [ ] Document usage
