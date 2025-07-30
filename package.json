@@ -36,9 +36,9 @@
     "commands": [],
     "configuration": {
       "type": "object",
-      "title": "ext-name",
+      "title": "ace-imports",
       "properties": {
-        "ext-name.imports": {
+        "ace-imports.imports": {
           "type": "array",
           "default": [],
           "description": "Imports to be used in the extension",
