@@ -4,13 +4,13 @@ import { memo } from 'radash'
 import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
-import { formatObject, logger } from './logger'
 
 function fileExists(filePath: string): boolean {
   try {
     return fs.statSync(filePath).isFile()
   }
-  catch (error) {
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (_) {
     return false
   }
 }
@@ -29,7 +29,7 @@ const findFilesUpwards = memo((
 
     if (fileExists(filePath)) {
       results.push(filePath)
-      break;
+      break
     }
 
     // Move up one directory

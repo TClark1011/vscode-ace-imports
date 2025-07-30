@@ -10,7 +10,7 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 
 ## Todo
 - [x] Prevent duplicate import statements
-- [ ] Description comment on left side of auto import item
+- [x] Description comment on left side of auto import item
 - [x] Only show imports from installed packages
 - [x] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
@@ -18,3 +18,4 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 - [ ] Allow import dependency to be based on existing of a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Option to manually specific package.json files to check for installed dependencies
 - [x] Default dependency to use source if not specified
+- [ ] Option to make the completion suggestion have higher priority than other completions (eg; so it shows up first in the list)

@@ -21,7 +21,6 @@ const { activate, deactivate } = defineExtension(() => {
           path.dirname(document.fileName),
         )
 
-
         const notAlreadyImported
           = config.imports.filter(item => !document.getText().includes(`import * as ${item.name}`))
 
@@ -49,22 +48,21 @@ const { activate, deactivate } = defineExtension(() => {
          */
 
         const bestNameVersions = new Map<string, ExtSettingImportRule>()
-        // key = name, value = the whole import rule  
+        // key = name, value = the whole import rule
         installed.forEach((item) => {
           const currentBest = bestNameVersions.get(item.name)
-          let itemIsBest = !currentBest || (!currentBest.dependency && !item.dependency);
+          let itemIsBest = !currentBest || (!currentBest.dependency && !!item.dependency)
 
-          if (item.dependency && currentBest?.dependency) {
+          if (!itemIsBest && item.dependency && currentBest?.dependency) {
             const currentBestVersion = parseDependencyDefinition(currentBest.dependency).version
             const itemVersion = parseDependencyDefinition(item.dependency).version
 
-            itemIsBest = 
-              itemIsBest ||
-              currentBestVersion === itemVersion ||
-              currentBestVersion === "*" && itemVersion !=="*" ||
-              semver.gte(itemVersion, currentBestVersion)
+            itemIsBest
+            = currentBestVersion === itemVersion
+              || currentBestVersion === '*' && itemVersion !== '*'
+              || semver.gte(itemVersion, currentBestVersion)
           }
-          
+
           if (itemIsBest) {
             bestNameVersions.set(item.name, item)
           }
@@ -74,15 +72,20 @@ const { activate, deactivate } = defineExtension(() => {
 
         return finalActiveImports.map((item) => {
           const importStatement = `import * as ${item.name} from '${item.source}'`
+          const labelDetail = '*'
 
           return ({
-            label: item.name,
+            label: {
+              label: item.name,
+              detail: labelDetail,
+              description: item.source,
+            },
             kind: CompletionItemKind[item.kind ?? 'Variable'],
             additionalTextEdits: [textEditInsertAtStart(`${importStatement};\n`)],
             insertText: item.name,
-            detail: importStatement,
-            documentation: `documentation for ${item.name}`,
-
+            detail: `Add namespace import from "${item.source}"`,
+            sortText: `!${item.name}`,
+            // filterText: `${item.name}${labelDetail}`,
           })
         })
       },
