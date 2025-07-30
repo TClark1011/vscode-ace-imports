@@ -10,6 +10,8 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 
 **Important:** This project uses `reactive-vscode`, so check in the docs for that when developing, it changes alot of aspects of developing VS Code extensions.
 
+**Dependencies:** Because of `tsdown` behaviour, any dependencies that are used in the extension code must be listed in `devDependencies` in `package.json`, otherwise they will not be included in the build output.
+
 ## Releasing
 
 To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
@@ -22,9 +24,10 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
 - [ ] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
 - [ ] Allow import dependency to be based on existing of a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
-- [ ] Option to manually specific package.json files to check for installed dependencies
+- [ ] Option to specify specific package.json files to check for installed dependencies
 - [x] Default dependency to use source if not specified
-- [ ] Option to make the completion suggestion have higher priority than other completions (eg; so it shows up first in the list)
 - [ ] Custom icon
 - [ ] Improve mechanism for determining if a package is installed
 - [ ] Document usage
+- [ ] Do not show suggestions when its not a valid usage context
+- [ ] Enable for javascript (have to create a second provider with `javascript` language)

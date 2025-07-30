@@ -11,10 +11,11 @@ import { textEditInsertAtStart } from './utils/vsc-helpers'
 const { activate, deactivate } = defineExtension(() => {
   logger.info('Extension activated')
   logger.info('Extension configuration:', formatObject(config))
+
   languages.registerCompletionItemProvider(
     {
-      language: 'typescript',
       scheme: 'file',
+      language: 'typescript',
     },
     {
       provideCompletionItems(document) {
@@ -35,12 +36,15 @@ const { activate, deactivate } = defineExtension(() => {
             const dependencyRequirementData = parseDependencyDefinition(dependency)
             const localDependencyVersionRange = installedDependencies.get(dependencyRequirementData.name)
 
-            if (!localDependencyVersionRange) {
+            if (localDependencyVersionRange === '*')
+              return true
+
+            if (!localDependencyVersionRange)
               return false
-            }
+
             const minInstalledVersion = semver.minVersion(localDependencyVersionRange ?? '')?.version
 
-            return semver.satisfies(minInstalledVersion ?? '', dependencyRequirementData.version)
+            return semver.satisfies(minInstalledVersion ?? '', dependencyRequirementData.version ?? '*')
           })
 
           /**
@@ -59,10 +63,22 @@ const { activate, deactivate } = defineExtension(() => {
               const currentBestVersion = parseDependencyDefinition(currentBest.dependency).version
               const itemVersion = parseDependencyDefinition(item.dependency).version
 
-              itemIsBest
-              = currentBestVersion === itemVersion
-                || currentBestVersion === '*' && itemVersion !== '*'
-                || semver.gte(itemVersion, currentBestVersion)
+              try {
+                itemIsBest
+                = !currentBestVersion
+                  || currentBestVersion === itemVersion
+                  || currentBestVersion === '*' && itemVersion !== '*'
+                  || semver.gte(semver.minVersion(itemVersion ?? '*')!, semver.minVersion(currentBestVersion ?? '*')!)
+              }
+              catch (error) {
+                logger.error('Error comparing versions', formatObject({
+                  error,
+                  currentBestVersion,
+                  itemVersion,
+                  semverValidItemVersion: semver.valid(itemVersion),
+                  itemIsBest,
+                }))
+              }
             }
 
             if (itemIsBest) {
@@ -88,7 +104,7 @@ const { activate, deactivate } = defineExtension(() => {
               additionalTextEdits: [textEditInsertAtStart(`${importStatement};\n`)],
               insertText: item.name,
               detail: `Add namespace import from "${item.source}"`,
-              sortText: `!${item.name}`,
+              filterText: `${item.name}${labelDetail}`,
             })
           })
         }

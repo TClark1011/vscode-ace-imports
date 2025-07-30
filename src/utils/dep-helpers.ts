@@ -64,10 +64,6 @@ const dependencyDefinitionSchema = z.string().pipe(
     z.tuple([z.literal(''), z.string()]), // scoped package without version like `@scope/package`
   ]),
 ).pipe(
-  // z.transform(([name, version]) => ({
-  //   name,
-  //   version,
-  // })),
   z.transform(value =>
     match(value)
       .returnType<[string, string?]>()
@@ -80,7 +76,7 @@ const dependencyDefinitionSchema = z.string().pipe(
 ).pipe(
   z.transform(([name, version]) => ({
     name,
-    version: version ?? '*', // if they provided a dependency without a version, we count that as any version
+    version, // if they provided a dependency without a version, we count that as any version
   })),
 )
 

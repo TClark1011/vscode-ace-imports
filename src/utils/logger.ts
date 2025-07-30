@@ -1,4 +1,5 @@
 import { useLogger } from 'reactive-vscode'
+import { match, P } from 'ts-pattern'
 import { displayName } from '../generated/meta'
 
 export const logger = useLogger(displayName)
@@ -8,7 +9,14 @@ export function formatObject(obj: unknown): string {
 }
 
 export function logError(contextName: string, error: unknown): void {
-  const unableToStringify = String(error) === '[object Object]'
-  const stringifiedError = unableToStringify ? formatObject(error) : String(error)
+  const stringifiedError: string = match(error)
+    .with(P.instanceOf(Error), err => formatObject({
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+    }))
+    .when(v => String(v) === '[object Object]', formatObject)
+    .otherwise(v => String(v))
+
   logger.error(`Error in ${contextName}: \n`, stringifiedError)
 }
