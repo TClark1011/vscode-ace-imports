@@ -113,6 +113,7 @@
     "pack": "vsce package --no-dependencies",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
+    "bump": "bumpp --push --commit --tag",
     "release": "bumpp && nr publish"
   },
   "dependencies": {
