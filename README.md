@@ -4,7 +4,7 @@ A VS Code extension that automatically creates asterisk (aka "namespace") import
 
 ## Developing
 
-Alter the extension config (commands, settings, etc) in `package.json` and then run `ni` to update the generated files.
+Extension settings config is edited through `package.json`, once changes are made, run the "generate" script to generate the typescript types for the settings.
 
 To test the extension, run the `Extension` launch configuration in VS Code. When you are finished, you may have to manually terminate the `dev` task in the terminal.
 

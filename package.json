@@ -105,8 +105,8 @@
   "scripts": {
     "build": "tsdown src/index.ts --external vscode",
     "dev": "nr build --watch --sourcemap",
-    "prepare": "nr update",
-    "update": "vscode-ext-gen --output src/generated/meta.ts",
+    "prepare": "nr generate",
+    "generate": "vscode-ext-gen --output src/generated/meta.ts",
     "lint": "eslint .",
     "vscode:prepublish": "nr build",
     "publish": "vsce publish --no-dependencies",
