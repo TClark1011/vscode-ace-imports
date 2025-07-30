@@ -88,13 +88,20 @@
                   "Operator",
                   "TypeParameter",
                   "User",
-                  "Issue" 
+                  "Issue"
                 ]
+              },
+              "dependency": {
+                "type": "string",
+                "description": "Dependency that must be installed for this import to work, in the format `package@version`",
+                "pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?"
               }
             },
-            "required": ["source", "name"]
+            "required": [
+              "source",
+              "name"
+            ]
           }
-
         }
       }
     }
@@ -112,10 +119,17 @@
     "typecheck": "tsc --noEmit",
     "release": "bumpp && nr publish"
   },
+  "dependencies": {
+    "radash": "^12.1.1",
+    "semver": "^7.7.2",
+    "ts-pattern": "^5.8.0",
+    "zod": "^4.0.11"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
     "@antfu/ni": "^23.3.1",
     "@types/node": "^22.13.4",
+    "@types/semver": "^7.7.0",
     "@types/vscode": "^1.97.0",
     "@vscode/vsce": "^3.2.2",
     "bumpp": "^10.0.3",

@@ -4,12 +4,12 @@ import antfu from '@antfu/eslint-config'
 export default antfu(
   {
     ignores: [
-      // eslint ignore globs here
+      'demos',
     ],
   },
   {
     rules: {
-      // overrides
+      'jsonc/no-useless-escape': 'off',
     },
   },
 )

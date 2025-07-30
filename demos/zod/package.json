@@ -1,0 +1,9 @@
+{
+  "name": "zod-test",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "zod": "^4.0.11"
+  }
+}

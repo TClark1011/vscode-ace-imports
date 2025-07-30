@@ -9,7 +9,8 @@
       "isBackground": true,
       "presentation": {
         "reveal": "never",
-        "close": true
+        "close": true,
+        "panel": "dedicated"
       },
       "problemMatcher": [
         {
