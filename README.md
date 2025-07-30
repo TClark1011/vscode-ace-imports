@@ -1,4 +1,6 @@
-# Name To Come
+# Ace Imports
+
+A VS Code extension that automatically creates asterisk (aka "namespace") imports (`import * as X from 'x'`) for installed packages.
 
 ## Developing
 
@@ -7,6 +9,12 @@ Alter the extension config (commands, settings, etc) in `package.json` and then 
 To test the extension, run the `Extension` launch configuration in VS Code. When you are finished, you may have to manually terminate the `dev` task in the terminal.
 
 **Important:** This project uses `reactive-vscode`, so check in the docs for that when developing, it changes alot of aspects of developing VS Code extensions.
+
+## Releasing
+
+Create a new build by running the "build" script.
+
+To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
 
 ## Todo
 - [x] Prevent duplicate import statements
@@ -20,3 +28,4 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 - [x] Default dependency to use source if not specified
 - [ ] Option to make the completion suggestion have higher priority than other completions (eg; so it shows up first in the list)
 - [ ] Custom icon
+- [ ] Improve mechanism for determining if a package is installed
