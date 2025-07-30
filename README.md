@@ -12,8 +12,6 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 
 ## Releasing
 
-Create a new build by running the "build" script.
-
 To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
 
 ## Todo
