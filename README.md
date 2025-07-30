@@ -12,6 +12,10 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 
 **Dependencies:** Because of `tsdown` behaviour, any dependencies that are used in the extension code must be listed in `devDependencies` in `package.json`, otherwise they will not be included in the build output.
 
+### Debugging
+
+**Extension Not Starting?:** If your extension doesn't appear to be starting, go to the `Output` panel and select `Extension Host` from the dropdown. Any unhandled critical extension errors are logged there.
+
 ## Releasing
 
 To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
@@ -26,8 +30,9 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Allow import dependency to be based on existing of a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Option to specify specific package.json files to check for installed dependencies
 - [x] Default dependency to use source if not specified
-- [ ] Custom icon
+- [ ] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
 - [ ] Document usage
 - [ ] Do not show suggestions when its not a valid usage context
 - [ ] Enable for javascript (have to create a second provider with `javascript` language)
+- [ ] Allow multiple names
