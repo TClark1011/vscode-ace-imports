@@ -19,3 +19,4 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 - [ ] Option to manually specific package.json files to check for installed dependencies
 - [x] Default dependency to use source if not specified
 - [ ] Option to make the completion suggestion have higher priority than other completions (eg; so it shows up first in the list)
+- [ ] Custom icon
