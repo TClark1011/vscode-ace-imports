@@ -33,7 +33,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
 - [ ] Do not show suggestions when its not a valid usage context
-- [ ] Support javascript, javascriptreact and typescriptreact files
+- [x] Support javascript, javascriptreact and typescriptreact files
 - [ ] Allow multiple names
 - [ ] Option to run sort import action when accepting completion
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
