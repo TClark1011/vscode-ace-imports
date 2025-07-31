@@ -8,12 +8,20 @@
 		{
 			"source": "zod/v4",
 			"name": "z",
-			"dependency": "zod@^4.0.0"
+			"dependency": "zod@^4.0.0",
+			"id": "zod-v4"
+		},
+		{
+			"source": "zod/mini",
+			"name": "z",
+			"dependency": "zod@^4.0.0",
+			"id": "zod-mini"
 		},
 		{
 			"source": "joi",
 			"name": "Joi",
 			"dependency": "joi"
 		}
-	]
+	],
+	"ace-imports.disabled": ["zod-mini", "!zod-mini"]
 }

@@ -91,6 +91,10 @@
                 "type": "string",
                 "description": "Dependency that must be installed for this import to work, in the format `package@version`",
                 "pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?"
+              },
+              "id": {
+                "type": "string",
+                "description": "An identifier that can be used to disable this import via `ace-imports.disabled` setting"
               }
             },
             "required": [
@@ -98,9 +102,18 @@
               "name"
             ]
           }
+        },
+        "ace-imports.disabled": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "List of import IDs to disable. If an item is prefixed with `!`, it will be enabled instead of disabled. This allows you to disable an import in your user settings, but enable it in your workspace settings."
         }
       }
     }
+    
   },
   "scripts": {
     "build": "tsdown src/index.ts --external vscode",

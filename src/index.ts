@@ -33,8 +33,25 @@ const { activate, deactivate } = defineExtension(() => {
             path.dirname(document.fileName),
           )
 
+          const disabledImportIds = new Set<string>();
+          config.disabled.forEach(item => {
+            if (item.startsWith('!')) {
+              const id = item.slice(1)
+              disabledImportIds.delete(id) // If it starts with '!', we enable it, so
+            }
+            else {
+              disabledImportIds.add(item) // Otherwise, we disable it
+            }
+          })
+
+          const enabledImports = config.imports.filter(item => {
+            if (!item.id) return true;
+
+            return !disabledImportIds.has(item.id)
+          })
+
           const notAlreadyImported
-            = config.imports.filter(item => !document.getText().includes(`import * as ${item.name}`))
+            = enabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
 
           const installed = notAlreadyImported.filter((item) => {
             const dependency = item.dependency

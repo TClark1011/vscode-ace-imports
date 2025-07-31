@@ -26,18 +26,22 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Only show imports from installed packages
 - [x] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
-- [ ] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
+- [x] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
 - [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Option to specify specific package.json files to check for installed dependencies
 - [ ] Default dependency to use source if not specified
 - [ ] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
-- [ ] Document usage
 - [ ] Do not show suggestions when its not a valid usage context
 - [ ] Enable for javascript (have to create a second provider with `javascript` language)
 - [ ] Allow multiple names
 - [ ] Option to run sort import action when accepting completion
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
+
+### Documentation
+- [ ] Basic Usage
+- [ ] Disabling + Re-enabling with "!"
+- [ ] Import rule dependency + collision resolution
 
 ### Todo Notes
 
