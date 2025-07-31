@@ -33,12 +33,13 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
 - [ ] Do not show suggestions when its not a valid usage context
-- [ ] Enable for javascript (have to create a second provider with `javascript` language)
+- [ ] Support javascript, javascriptreact and typescriptreact files
 - [ ] Allow multiple names
 - [ ] Option to run sort import action when accepting completion
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [ ] Clear package.json cache when package.json changes
 - [ ] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
+- [ ] Support type imports (eg; `import type * as X from 'x'`)
 
 ### Documentation
 - [ ] Basic Usage
