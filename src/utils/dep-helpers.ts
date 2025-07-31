@@ -54,7 +54,7 @@ const semverSchema = z.string().refine(
   },
 )
 
-const dependencyDefinitionSchema = z.string().pipe(
+const dependencyNameAndSpecifierSchema = z.string().pipe(
   z.transform(value => value.split('@')),
 ).pipe(
   z.union([
@@ -74,14 +74,14 @@ const dependencyDefinitionSchema = z.string().pipe(
       .otherwise(v => v),
   ),
 ).pipe(
-  z.transform(([name, version]) => ({
+  z.transform(([name, versionRange]) => ({
     name,
-    version, // if they provided a dependency without a version, we count that as any version
+    versionRange: new semver.Range(versionRange ?? '*'), // if they provided a dependency without a version, we count that as any version
   })),
 )
 
-export const parseDependencyDefinition = memo((definition: string) => {
-  const result = dependencyDefinitionSchema.parse(definition)
+export const parseImportRuleDependency = memo((definition: string) => {
+  const result = dependencyNameAndSpecifierSchema.parse(definition)
   return result
 })
 
@@ -104,17 +104,21 @@ function readPackageJson(path: string): PackageJson {
   return packageJsonSchema.parse(untypedParsed)
 }
 
-export const getInstalledDependencies = memo((path: string): Map<string, string> => {
+/**
+ * Returns a map, keys are dependency names, values are their version specifiers
+ * found in the nearest `package.json` files.
+ */
+export const getActiveDependencySpecifiers = memo((path: string): Map<string, semver.Range> => {
   const packageFilePaths = findFilesUpwards('package.json', path)
 
   const packages = packageFilePaths.map(readPackageJson)
 
-  const result = new Map<string, string>()
+  const result = new Map<string, semver.Range>()
 
   packages.forEach((pkg) => {
     [pkg.dependencies, pkg.devDependencies, pkg.peerDependencies].forEach((value) => {
       Object.entries(value ?? {}).forEach(([name, version]) => {
-        result.set(name, version)
+        result.set(name, new semver.Range(version))
       })
     })
   })

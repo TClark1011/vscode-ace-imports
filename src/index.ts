@@ -4,7 +4,7 @@ import { defineExtension } from 'reactive-vscode'
 import semver from 'semver'
 import { CompletionItemKind, languages } from 'vscode'
 import { config } from './config'
-import { getInstalledDependencies, parseDependencyDefinition } from './utils/dep-helpers'
+import { getActiveDependencySpecifiers, parseImportRuleDependency } from './utils/dep-helpers'
 import { env } from './utils/env'
 import { formatObject, logError, logger } from './utils/logger'
 import { textEditInsertAtStart } from './utils/vsc-helpers'
@@ -16,6 +16,10 @@ const { activate, deactivate } = defineExtension(() => {
   logger.info('Extension activated')
   logger.info('Extension configuration:', formatObject(config))
 
+  logger.info('Testing stuff: ', formatObject({
+    minVersionAsterisk: semver.minVersion('*'),
+  }))
+
   languages.registerCompletionItemProvider(
     {
       scheme: 'file',
@@ -25,7 +29,7 @@ const { activate, deactivate } = defineExtension(() => {
       provideCompletionItems(document) {
         try {
           logger.info('provideCompletionItems #1: Starting')
-          const installedDependencies = getInstalledDependencies(
+          const installedDependencies = getActiveDependencySpecifiers(
             path.dirname(document.fileName),
           )
 
@@ -37,18 +41,17 @@ const { activate, deactivate } = defineExtension(() => {
             if (!dependency)
               return true
 
-            const dependencyRequirementData = parseDependencyDefinition(dependency)
+            const dependencyRequirementData = parseImportRuleDependency(dependency)
             const localDependencyVersionRange = installedDependencies.get(dependencyRequirementData.name)
-
-            if (localDependencyVersionRange === '*')
-              return true
 
             if (!localDependencyVersionRange)
               return false
 
-            const minInstalledVersion = semver.minVersion(localDependencyVersionRange ?? '')?.version
+            const minVersion = semver.minVersion(localDependencyVersionRange)
+            if (!minVersion)
+              throw new Error(`Unable to determine minimum version for "${dependencyRequirementData.name}" with range "${localDependencyVersionRange.raw}"`)
 
-            return semver.satisfies(minInstalledVersion ?? '', dependencyRequirementData.version ?? '*')
+            return semver.satisfies(minVersion, dependencyRequirementData.versionRange)
           })
 
           /**
@@ -64,14 +67,14 @@ const { activate, deactivate } = defineExtension(() => {
             let itemIsBest = !currentBest || (!currentBest.dependency && !!item.dependency)
 
             if (!itemIsBest && item.dependency && currentBest?.dependency) {
-              const currentBestVersion = parseDependencyDefinition(currentBest.dependency).version
-              const itemVersion = parseDependencyDefinition(item.dependency).version
+              const currentBestVersion = parseImportRuleDependency(currentBest.dependency).versionRange
+              const itemVersion = parseImportRuleDependency(item.dependency).versionRange
 
               try {
                 itemIsBest
                 = !currentBestVersion
-                  || currentBestVersion === itemVersion
-                  || currentBestVersion === '*' && itemVersion !== '*'
+                  || currentBestVersion.raw === itemVersion.raw
+                  || currentBestVersion.raw === '*' && itemVersion.raw !== '*'
                   || semver.gte(semver.minVersion(itemVersion ?? '*')!, semver.minVersion(currentBestVersion ?? '*')!)
               }
               catch (error) {
@@ -79,7 +82,6 @@ const { activate, deactivate } = defineExtension(() => {
                   error,
                   currentBestVersion,
                   itemVersion,
-                  semverValidItemVersion: semver.valid(itemVersion),
                   itemIsBest,
                 }))
               }
