@@ -5,10 +5,14 @@ import semver from 'semver'
 import { CompletionItemKind, languages } from 'vscode'
 import { config } from './config'
 import { getInstalledDependencies, parseDependencyDefinition } from './utils/dep-helpers'
+import { env } from './utils/env'
 import { formatObject, logError, logger } from './utils/logger'
 import { textEditInsertAtStart } from './utils/vsc-helpers'
 
 const { activate, deactivate } = defineExtension(() => {
+  if (env.debug)
+    logger.show()
+
   logger.info('Extension activated')
   logger.info('Extension configuration:', formatObject(config))
 

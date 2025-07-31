@@ -27,9 +27,9 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
 - [ ] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
-- [ ] Allow import dependency to be based on existing of a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
+- [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Option to specify specific package.json files to check for installed dependencies
-- [x] Default dependency to use source if not specified
+- [ ] Default dependency to use source if not specified
 - [ ] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
 - [ ] Document usage
@@ -37,3 +37,8 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Enable for javascript (have to create a second provider with `javascript` language)
 - [ ] Allow multiple names
 - [ ] Option to run sort import action when accepting completion
+- [ ] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
+
+### Todo Notes
+
+**Improving Package Install Check:** Use `npm list` terminal command (actually use an package-manager neutral equivalent) to check if a package is installed. Rather than doing it every time we provide completions, check on startup, and then watch the package.json file for changes, and re-check when it changes. This will improve performance and reduce the number of times we have to check if a package is installed.
