@@ -37,7 +37,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Enable for javascript (have to create a second provider with `javascript` language)
 - [ ] Allow multiple names
 - [ ] Option to run sort import action when accepting completion
-- [ ] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
+- [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 
 ### Todo Notes
 
