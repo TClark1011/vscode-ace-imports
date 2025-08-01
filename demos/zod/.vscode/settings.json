@@ -2,26 +2,11 @@
 	"ace-imports.imports": [
 		{
 			"source": "zod",
-			"name": "z",
-			"dependency": "zod"
-		},
-		{
-			"source": "zod/v4",
-			"name": "z",
-			"dependency": "zod@^4.0.0",
-			"id": "zod-v4"
-		},
-		{
-			"source": "zod/mini",
-			"name": "z",
-			"dependency": "zod@^4.0.0",
-			"id": "zod-mini"
+			"name": "z"
 		},
 		{
 			"source": "joi",
-			"name": "Joi",
-			"dependency": "joi"
+			"name": "Joi"
 		}
-	],
-	"ace-imports.disabled": ["zod-mini", "!zod-mini"]
+	]
 }

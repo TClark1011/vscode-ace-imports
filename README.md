@@ -2,6 +2,87 @@
 
 A VS Code extension that automatically creates asterisk (aka "namespace") imports (`import * as X from 'x'`) for installed packages.
 
+Why? Because some libraries (like `zod`) recommend using namespace imports, but VS Code's auto-import feature does not support them, so you have to manually move your cursor to the top of the file and type it out yourself which can throw off your flow. This extension solves that problem by automatically creating the import statement for you, just like VS Code's auto-import feature does for normal imports.
+
+## Usage
+
+To start using Ace Imports, you need to provide your import rules in the extension settings. Import rules define what imports can be created. Here is a basic example that defines an import rule for `zod`:
+
+```json
+{
+  "ace-imports.imports": [
+    {
+      "name": "z",
+      "source": "zod"
+    }
+  ]
+}
+```
+
+This rule will create the following import statement: `import * as z from 'zod'`. `name` defines the namespace (variable name) that will be used in the import statement, and `source` defines the path from which the import is made. By default, the extension will only show an import if it's source is detected in the nearest `package.json` file, so you don't have to worry about it showing imports for packages that are not installed.
+
+When auto-importing a namespace import, the extension will add an item to VS Code's auto-completion menu, marked with an "*", simply accept that suggestion to create the import statement.
+
+![Screenshot of Ace Imports in action](/doc-assets/zod-suggestion-screenshot.png)
+
+If the source of the import does not match the package name, you can specify the package name in the `dependency` field:
+
+```json
+{
+  "ace-imports.imports": [
+    {
+      "name": "Schema",
+      "source": "effect/Schema",
+      "dependency": "effect"
+    }
+  ]
+}
+```
+
+`import * as Schema from 'effect/Schema'.
+
+Additionally, you can use the `dependency` field to specify a version range for the dependency, so that the import can only be created if the correct version of the dependency is installed.
+
+```json
+{
+	"ace-imports.imports": [
+		{
+			"name": "z",
+			"source": "zod/v4",
+			"dependency": "zod@^4.0.0"
+		}
+	]
+}
+```
+
+This rule will create `import * as z from 'zod/v4'`, but only if your installed version of zod is at major version 4. The range specifier supports the [semver](https://semver.org) syntax ([cheatsheet](https://devhints.io/semver)).
+
+If you have multiple import rules with the same `name`, the one with the highest matching dependency version will be used (imports that don't specify a dependency version are counted as having a version of `0.0.0` for this comparison). For example, we could use both our our `zod` examples together like this:
+
+```json
+{
+  "ace-imports.imports": [
+    {
+      "name": "z",
+      "source": "zod"
+    },
+    {
+      "name": "z",
+      "source": "zod/v4",
+      "dependency": "zod@^4.0.0"
+    }
+  ]
+}
+```
+
+Now the extension will create `import * as z from 'zod/v4'` if you have zod version 4 installed, if you have a different version of `zod` installed it will create `import * as z from 'zod'`.
+
+*If two matching imports have the same dependency version, their priority is determined by the order they are defined in the settings, with the last one taking priority.*
+
+**Import Kind:** You can also specify the classification VSCode will apply to the import, which will affect the icon that is shown next to the suggestion item and possibly also the item's sorting order. This is done using the `kind` field, which accepts any of VS Code's `CompletionItemKind` enum values (when editting the settings your IDE will provide autocompletion for these). By default, the `Variable` kind is used, which is what a namespace import is actually classified as, so there isn't any situation where you need to change this, but it's there if you want to use it.
+
+---
+
 ## Developing
 
 Extension settings config is edited through `package.json`, once changes are made, run the "generate" script to generate the typescript types for the settings.
@@ -39,11 +120,17 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Clear package.json cache when package.json changes
 - [ ] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
+- [ ] Support default imports (eg; `import X from 'x'`)
+- [ ] Option for quote style (single or double quotes)
+
+### Testing
+- [ ] Scoped packages eg; (`@scope/package`)
 
 ### Documentation
-- [ ] Basic Usage
+- [x] Basic Usage
 - [ ] Disabling + Re-enabling with "!"
-- [ ] Import rule dependency + collision resolution
+- [x] Import rule dependency + collision resolution
+- [ ] Move development documentation to a separate file
 
 ### Todo Notes
 
