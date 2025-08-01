@@ -58,9 +58,7 @@ const { activate, deactivate } = defineExtension(() => {
             = enabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
 
             const installed = notAlreadyImported.filter((item) => {
-              const dependency = item.dependency
-              if (!dependency)
-                return true
+              const dependency = item.dependency ?? item.source
 
               const dependencyRequirementData = parseImportRuleDependency(dependency)
               const localDependencyVersionRange = installedDependencies.get(dependencyRequirementData.name)
