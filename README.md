@@ -102,26 +102,29 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
 
 ## Todo
+
+### Baseline
 - [x] Prevent duplicate import statements
 - [x] Description comment on left side of auto import item
 - [x] Only show imports from installed packages
 - [x] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
 - [x] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
-- [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Option to specify specific package.json files to check for installed dependencies
 - [x] Custom extension icon
 - [ ] Improve mechanism for determining if a package is installed
-- [ ] Do not show suggestions when its not a valid usage context
 - [x] Support javascript, javascriptreact and typescriptreact files
-- [ ] Allow multiple names
 - [ ] Option to run "sort import" and/or "format document" actions after import is added
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [ ] Clear package.json cache when package.json changes
 - [ ] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
+- [ ] Option for quote style (single or double quotes)
+
+### Later Additions
+
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
 - [ ] Support default imports (eg; `import X from 'x'`)
-- [ ] Option for quote style (single or double quotes)
+- [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 
 ### Testing
 - [ ] Scoped packages eg; (`@scope/package`)
