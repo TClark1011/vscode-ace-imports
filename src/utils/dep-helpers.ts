@@ -1,9 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { memo } from 'radash'
 import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
+import { memo } from './memo'
 
 function fileExists(filePath: string): boolean {
   try {

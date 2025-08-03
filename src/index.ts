@@ -2,7 +2,7 @@ import type { ExtSettingImportRule } from './types'
 import path from 'node:path'
 import { defineExtension } from 'reactive-vscode'
 import semver from 'semver'
-import { CompletionItemKind, languages } from 'vscode'
+import { CompletionItemKind, languages, workspace } from 'vscode'
 import { config } from './config'
 import { getActiveDependencySpecifiers, parseImportRuleDependency } from './utils/dep-helpers'
 import { env } from './utils/env'
@@ -21,6 +21,16 @@ const { activate, deactivate } = defineExtension(() => {
   logger.info('Testing stuff: ', formatObject({
     minVersionAsterisk: semver.minVersion('*'),
   }))
+
+  // Clear package.json read cache when package.json changes
+  const packageWatcher = workspace.createFileSystemWatcher('**/package.json')
+  packageWatcher.onDidChange((uri) => {
+    if (uri.fsPath.includes(`${path.sep}node_modules${path.sep}`))
+      return
+    logger.info('package.json changed:', uri.fsPath)
+
+    getActiveDependencySpecifiers.clearMemoCache()
+  })
 
   LANGUAGES.forEach((language) => {
     languages.registerCompletionItemProvider(
