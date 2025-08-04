@@ -1,4 +1,4 @@
-import type { ExtSettingImportRule } from './types'
+import type { ExtSettingImportRule, ExtSettingQuoteStyle } from './types'
 import path from 'node:path'
 import { defineExtension } from 'reactive-vscode'
 import semver from 'semver'
@@ -7,6 +7,7 @@ import { config } from './config'
 import { getActiveDependencySpecifiers, parseImportRuleDependency } from './utils/dep-helpers'
 import { env } from './utils/env'
 import { formatObject, logError, logger } from './utils/logger'
+import { getQuoteStyleFromConfig, getQuoteStyleUsedInCode, quoteCharacters } from './utils/quote-style'
 import { textEditInsertAtStart } from './utils/vsc-helpers'
 
 const LANGUAGES = ['javascript', 'javascriptreact', 'typescript', 'typescriptreact']
@@ -32,6 +33,24 @@ const { activate, deactivate } = defineExtension(() => {
     getActiveDependencySpecifiers.clearMemoCache()
   })
 
+  // Change this workspace config detection to be an array of objects with
+  // `path` and `quoteStyle` properties, so we can support multiple workspace
+  // folders. Then when providing completions, we check which workspace folder
+  // the document and belongs to and use the corresponding config.
+
+  const primaryWorkspacePath = workspace.workspaceFolders?.[0]?.uri.fsPath;
+  if (primaryWorkspacePath) {
+    logger.info('Primary workspace folder path:', primaryWorkspacePath)
+  }
+  const quoteStyleForWorkspace = getQuoteStyleFromConfig(primaryWorkspacePath ?? '')
+  if (quoteStyleForWorkspace) {
+    logger.info('Quote style from workspace formatter config:', quoteStyleForWorkspace)
+  }
+
+  // TODO: Watch formatter config files for changes and clear the memo cache
+
+  let lastFoundQuoteStyle: ExtSettingQuoteStyle | undefined
+
   LANGUAGES.forEach((language) => {
     languages.registerCompletionItemProvider(
       {
@@ -39,9 +58,22 @@ const { activate, deactivate } = defineExtension(() => {
         language,
       },
       {
+        // TODO: Move quote detection to `resolveCompletionItem` to improve performance
         provideCompletionItems(document) {
           try {
             logger.info('provideCompletionItems #1: Starting')
+
+            const detectedQuoteStyle: ExtSettingQuoteStyle = config.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
+            lastFoundQuoteStyle = detectedQuoteStyle
+
+            const quoteCharacter = quoteCharacters[detectedQuoteStyle]
+
+            logger.info('quote style for document:', formatObject({
+              configQuoteStyle: config.quoteStyle,
+              documentQuoteStyle: detectedQuoteStyle,
+              quoteCharacter,
+            }))
+
             const installedDependencies = getActiveDependencySpecifiers(
               path.dirname(document.fileName),
             )
@@ -126,7 +158,7 @@ const { activate, deactivate } = defineExtension(() => {
             logger.info('provideCompletionItems #2: selected imports: ', formatObject(finalActiveImports))
 
             return finalActiveImports.map((item) => {
-              const importStatement = `import * as ${item.name} from '${item.source}'`
+              const importStatement = `import * as ${item.name} from ${quoteCharacter}${item.source}${quoteCharacter}`
               const labelDetail = '*'
 
               return ({

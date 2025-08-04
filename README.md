@@ -45,13 +45,13 @@ Additionally, you can use the `dependency` field to specify a version range for 
 
 ```json
 {
-	"ace-imports.imports": [
-		{
-			"name": "z",
-			"source": "zod/v4",
-			"dependency": "zod@^4.0.0"
-		}
-	]
+  "ace-imports.imports": [
+    {
+      "name": "z",
+      "source": "zod/v4",
+      "dependency": "zod@^4.0.0"
+    }
+  ]
 }
 ```
 
@@ -80,6 +80,15 @@ Now the extension will create `import * as z from 'zod/v4'` if you have zod vers
 *If two matching imports have the same dependency version, their priority is determined by the order they are defined in the settings, with the last one taking priority.*
 
 **Import Kind:** You can also specify the classification VSCode will apply to the import, which will affect the icon that is shown next to the suggestion item and possibly also the item's sorting order. This is done using the `kind` field, which accepts any of VS Code's `CompletionItemKind` enum values (when editting the settings your IDE will provide autocompletion for these). By default, the `Variable` kind is used, which is what a namespace import is actually classified as, so there isn't any situation where you need to change this, but it's there if you want to use it.
+
+### Quote Style
+You can specify the kind of quotes that should be used for the import statements using the `ace-imports.quoteStyle` setting. The available options are `single`, `double`, and `backtick`. If not provided, the extension will attempt to detect the quote style by looking at your eslint/prettier config files, or the quote style used in the code. If no quote style can be detected, it will default to `double`.
+
+```json
+{
+  "ace-imports.quoteStyle": "single"
+}
+```
 
 ---
 
@@ -118,7 +127,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [x] Clear package.json cache when package.json changes
 - [ ] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
-- [ ] Option for quote style (single or double quotes)
+- [x] Option for quote style (single or double quotes)
 
 ### Later Additions
 

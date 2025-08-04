@@ -1,51 +1,9 @@
 import fs from 'node:fs'
-import path from 'node:path'
 import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
+import { findFirstFileUpwards } from './fs-helpers'
 import { memo } from './memo'
-
-function fileExists(filePath: string): boolean {
-  try {
-    return fs.statSync(filePath).isFile()
-  }
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  catch (_) {
-    return false
-  }
-}
-
-const findFilesUpwards = memo((
-  filename: string,
-  startDir: string,
-  maxDepth: number = 20,
-): string[] => {
-  let currentDir = path.resolve(startDir)
-  let depth = 0
-  const results: string[] = []
-
-  while (depth < maxDepth) {
-    const filePath = path.join(currentDir, filename)
-
-    if (fileExists(filePath)) {
-      results.push(filePath)
-      break
-    }
-
-    // Move up one directory
-    const parentDir = path.dirname(currentDir)
-
-    // If we've reached the root directory and can't go up further
-    if (parentDir === currentDir) {
-      break
-    }
-
-    currentDir = parentDir
-    depth++
-  }
-
-  return results
-})
 
 const semverSchema = z.string().refine(
   value => semver.valid(value) || semver.validRange(value),
@@ -109,9 +67,16 @@ function readPackageJson(path: string): PackageJson {
  * found in the nearest `package.json` files.
  */
 export const getActiveDependencySpecifiers = memo((path: string): Map<string, semver.Range> => {
-  const packageFilePaths = findFilesUpwards('package.json', path)
+  const packageFilePath = findFirstFileUpwards(
+    'package.json',
+    path,
+    20, // max depth
+  )
 
-  const packages = packageFilePaths.map(readPackageJson)
+  if (!packageFilePath)
+    return new Map()
+
+  const packages = [packageFilePath].map(readPackageJson) // Eventually will support multiple package.json files
 
   const result = new Map<string, semver.Range>()
 
