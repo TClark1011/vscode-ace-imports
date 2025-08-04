@@ -56,7 +56,7 @@ export const getQuoteStyleFromConfig = memo((workingPath: string): ExtSettingQuo
 			prettierConfigFileNames.some(name => configFile.endsWith(name)) ? 'prettier' : 'eslint';
 
 		const configFileType: ConfigFileType | undefined
-		 = (configFile.endsWith('.json') || configFile.endsWith('.prettierrc')) ? 'json'
+		 = (configFile.endsWith('.json') || configFile.endsWith('.prettierrc') || configFile.endsWith('.eslintrc')) ? 'json'
 			: configFile.endsWith('.js') ? 'js'
 			: configFile.endsWith('.yaml') ? 'yaml'
 			: configFile.endsWith('.toml') ? 'toml'
