@@ -19,6 +19,10 @@ To start using Ace Imports, you need to provide your import rules in the extensi
 }
 ```
 
+```js
+import * as z from 'zod'
+```
+
 This rule will create the following import statement: `import * as z from 'zod'`. `name` defines the namespace (variable name) that will be used in the import statement, and `source` defines the path from which the import is made. By default, the extension will only show an import if it's source is detected in the nearest `package.json` file, so you don't have to worry about it showing imports for packages that are not installed.
 
 When auto-importing a namespace import, the extension will add an item to VS Code's auto-completion menu, marked with an "*", simply accept that suggestion to create the import statement.
@@ -58,7 +62,7 @@ Additionally, you can use the `dependency` field to specify a version range for 
 ```
 
 ```js
-import * as Schema from 'effect/Schema'
+import * as z from 'zod/v4'
 ```
 
 This rule will create `import * as z from 'zod/v4'`, but only if your installed version of zod is at major version 4. The range specifier supports the [semver](https://semver.org) syntax ([cheatsheet](https://devhints.io/semver)).
@@ -89,7 +93,7 @@ Now the extension will create `import * as z from 'zod/v4'` if you have zod vers
 
 ### Workspace Imports
 
-If you have some imports that you only want to apply to a single project in addition to your main imports, you can define them in `ace-imports.workspaceImports`. Here you can define imports the exact same way as in `ace-imports.imports`, and they will be appended to your list imports. The idea is that you could define `ace-imports.imports` in your user settings, and then define `ace-imports.workspaceImports` in your workspace settings to add additional imports that are only relevant to that workspace.
+If you have some imports that you only want to apply to a single project in addition to your main imports, you can define them in `ace-imports.workspaceImports`. Here you can define imports the exact same way as in `ace-imports.imports`, and they will be appended to your main imports. The idea is that you can define `ace-imports.imports` in your user setting and define `ace-imports.workspaceImports` in your workspace settings to add additional imports that are only relevant to that workspace.
 
 ```json
 {
@@ -147,7 +151,7 @@ You can specify the kind of quotes that should be used for the import statements
     "name": "z",
     "source": "zod/mini",
     "dependency": "zod@>=4",
-    "id": "zod-mini",
+    "id": "zod-mini"
   }],
   "ace-imports.disabled": ["zod-mini"],
   "ace-imports.quoteStyle": "single"
