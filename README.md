@@ -87,11 +87,69 @@ Now the extension will create `import * as z from 'zod/v4'` if you have zod vers
 
 **Import Kind:** You can also specify the classification VSCode will apply to the import, which will affect the icon that is shown next to the suggestion item and possibly also the item's sorting order. This is done using the `kind` field, which accepts any of VS Code's `CompletionItemKind` enum values (when editting the settings your IDE will provide autocompletion for these). By default, the `Variable` kind is used, which is what a namespace import is actually classified as, so there isn't any situation where you need to change this, but it's there if you want to use it.
 
+### Workspace Imports
+
+If you have some imports that you only want to apply to a single project in addition to your main imports, you can define them in `ace-imports.workspaceImports`. Here you can define imports the exact same way as in `ace-imports.imports`, and they will be appended to your list imports. The idea is that you could define `ace-imports.imports` in your user settings, and then define `ace-imports.workspaceImports` in your workspace settings to add additional imports that are only relevant to that workspace.
+
+```json
+{
+  "ace-imports.workspaceImports": [
+    {
+      "name": "z",
+      "source": "zod/v4",
+      "dependency": "zod@^4.0.0"
+    }
+  ]
+}
+```
+
+### Disabling Imports
+
+If you have some imports that your normally want to disable but may want enabled for some projects, you can use the `ace-imports.disabled` in your user settings to define a list of import IDs that should be disabled:
+
+```json
+{
+  "ace-imports.disabled": ["zod-v4"]
+}
+```
+
+Its important to note that we are referencing the import *ID*, which you have to define in the rule itself. So the above example requires you to have an import with `"id": "zod-v4"` defined in your settings.
+
+Then in your workspace settings, you can re-enable the import by using the `ace-imports.workspaceAllowDisabled` setting:
+
+```json
+{
+  "ace-imports.workspaceAllowDisabled": ["zod-v4"]
+}
+```
+
 ### Quote Style
 You can specify the kind of quotes that should be used for the import statements using the `ace-imports.quoteStyle` setting. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used.
 
 ```json
 {
+  "ace-imports.quoteStyle": "single"
+}
+```
+
+### Full Example Config
+
+```json
+{
+  "ace-imports.imports": [{
+    "name": "z",
+    "source": "zod"
+  }, {
+    "name": "z",
+    "source": "zod/v4",
+    "dependency": "zod@^4.0.0"
+  }, {
+    "name": "z",
+    "source": "zod/mini",
+    "dependency": "zod@>=4",
+    "id": "zod-mini",
+  }],
+  "ace-imports.disabled": ["zod-mini"],
   "ace-imports.quoteStyle": "single"
 }
 ```
@@ -132,7 +190,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Option to run "sort import" and/or "format document" actions after import is added
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [x] Clear package.json cache when package.json changes
-- [ ] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
+- [x] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
 - [x] Option for quote style (single or double quotes)
 - [ ] Publish to extension marketplace
 
@@ -141,6 +199,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
 - [ ] Support default imports (eg; `import X from 'x'`)
 - [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
+- [ ] Allow import rules to be scoped to specific files (glob is probably best way to do this) (eg; allow `zod/mini` import in `web` folder, but not in `server` folder)
 
 ### Testing
 - [ ] Scoped packages eg; (`@scope/package`)

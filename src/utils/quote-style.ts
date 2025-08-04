@@ -3,6 +3,7 @@ import type { ConfigFileType } from './fs-helpers'
 import fs from 'node:fs'
 import { configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers'
 import { memo } from './memo'
+import path from 'node:path'
 
 export function getQuoteStyleUsedInCode(text: string): QuoteStyle | undefined {
   const singleQuoteRegex = /'/g
@@ -67,7 +68,7 @@ export const getQuoteStyleFromConfig = memo((workingPath: string): QuoteStyle | 
 		         : undefined
 
     if (!configFileType) {
-      throw new Error(`Unsupported config file type: ${configFile}`)
+      throw new Error(`Unable to determine file type for file name: ${path.basename(configFile)}`)
     }
 
     const propertyChecker = configFileTypePropertyFinders[configFileType]

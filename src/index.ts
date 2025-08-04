@@ -1,27 +1,44 @@
 import type { ExtSettingImportRule, QuoteStyle } from './types'
 import path from 'node:path'
-import { defineExtension } from 'reactive-vscode'
+import { defineExtension, watchEffect } from 'reactive-vscode'
 import semver from 'semver'
 import { CompletionItemKind, languages, workspace } from 'vscode'
-import { config } from './config'
+import { parsedConfigRef } from './config'
 import { getActiveDependencySpecifiers, parseImportRuleDependency } from './utils/dep-helpers'
 import { env } from './utils/env'
-import { formatObject, logError, logger } from './utils/logger'
+import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from './utils/logger'
 import { getQuoteStyleFromConfig, getQuoteStyleUsedInCode, quoteCharacters } from './utils/quote-style'
 import { textEditInsertAtStart } from './utils/vsc-helpers'
 
 const LANGUAGES = ['javascript', 'javascriptreact', 'typescript', 'typescriptreact']
+
+const disabledImportIds = new Set<string>()
+
+// Have to accept disabled imports as a param so we can call it
+// reactively
+function fillOutDisabledImportIds(disabledImports: string[], allowedDisabledImports: string[]) {
+  disabledImports.forEach((id) => {
+    disabledImportIds.add(id)
+  })
+  allowedDisabledImports.forEach((id) => {
+    disabledImportIds.delete(id)
+  })
+  logger.info('Evaluated disabled import IDs:', formatObject(Array.from(disabledImportIds)))
+}
+
+fillOutDisabledImportIds(parsedConfigRef.value.disabled, parsedConfigRef.value.allowDisabled)
+
+watchEffect(() => {
+  disabledImportIds.clear()
+  fillOutDisabledImportIds(parsedConfigRef.value.disabled, parsedConfigRef.value.allowDisabled)
+})
 
 const { activate, deactivate } = defineExtension(() => {
   if (env.debug)
     logger.show()
 
   logger.info('Extension activated')
-  logger.info('Extension configuration:', formatObject(config))
-
-  logger.info('Testing stuff: ', formatObject({
-    minVersionAsterisk: semver.minVersion('*'),
-  }))
+  logger.info('Extension configuration:', formatObject(parsedConfigRef.value))
 
   // Clear package.json read cache when package.json changes
   const packageWatcher = workspace.createFileSystemWatcher('**/package.json')
@@ -38,7 +55,7 @@ const { activate, deactivate } = defineExtension(() => {
   // folders. Then when providing completions, we check which workspace folder
   // the document and belongs to and use the corresponding config.
 
-  const primaryWorkspacePath = workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const primaryWorkspacePath = workspace.workspaceFolders?.[0]?.uri.fsPath
   if (primaryWorkspacePath) {
     logger.info('Primary workspace folder path:', primaryWorkspacePath)
   }
@@ -61,43 +78,33 @@ const { activate, deactivate } = defineExtension(() => {
         // TODO: Move quote detection to `resolveCompletionItem` to improve performance
         provideCompletionItems(document) {
           try {
-            logger.info('provideCompletionItems #1: Starting')
+            const lgp = logProgressMessageBuilderFactory('provideCompletionItems')
+            logger.info(lgp('Starting'))
 
-            const detectedQuoteStyle: QuoteStyle = config.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
+            const detectedQuoteStyle: QuoteStyle = parsedConfigRef.value.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
             lastFoundQuoteStyle = detectedQuoteStyle
 
             const quoteCharacter = quoteCharacters[detectedQuoteStyle]
-
-            logger.info('quote style for document:', formatObject({
-              configQuoteStyle: config.quoteStyle,
-              documentQuoteStyle: detectedQuoteStyle,
-              quoteCharacter,
-            }))
 
             const installedDependencies = getActiveDependencySpecifiers(
               path.dirname(document.fileName),
             )
 
-            const disabledImportIds = new Set<string>()
-            config.disabled.forEach((item) => {
-              if (item.startsWith('!')) {
-                const id = item.slice(1)
-                disabledImportIds.delete(id) // If it starts with '!', we enable it, so
-              }
-              else {
-                disabledImportIds.add(item) // Otherwise, we disable it
-              }
-            })
+            logger.info(lgp('Detected installed dependencies'), formatObject({installedDependencies: dependenciesToPrintableObject(installedDependencies)}))
 
-            const enabledImports = config.imports.filter((item) => {
+            const nonDisabledImports = parsedConfigRef.value.imports.filter((item) => {
               if (!item.id)
                 return true
 
               return !disabledImportIds.has(item.id)
             })
 
+            logger.info(lgp('Filtered out disabled imports'), formatObject({nonDisabledImports}))
+
             const notAlreadyImported
-            = enabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
+            = nonDisabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
+
+            logger.info(lgp('Filtered out already imported items'), formatObject({notAlreadyImported}))
 
             const installed = notAlreadyImported.filter((item) => {
               const dependency = item.dependency ?? item.source
@@ -114,6 +121,8 @@ const { activate, deactivate } = defineExtension(() => {
 
               return semver.satisfies(minVersion, dependencyRequirementData.versionRange)
             })
+
+            logger.info(lgp('Filtered out imports that are not satisfied by installed dependencies'), formatObject({installed}))
 
             /**
              * If there are multiple imports that use the same name, we
@@ -153,9 +162,13 @@ const { activate, deactivate } = defineExtension(() => {
               }
             })
 
+            logger.info(lgp('Resolved duplicate named imports'), formatObject({
+              bestNameVersions: Array.from(bestNameVersions.entries()).map(([name, item]) => ({ name, item })),
+            }))
+
             const finalActiveImports = Array.from(bestNameVersions.values())
 
-            logger.info('provideCompletionItems #2: selected imports: ', formatObject(finalActiveImports))
+            logger.info(lgp('Finished evaluating applicable imports'), formatObject({finalActiveImports}))
 
             return finalActiveImports.map((item) => {
               const importStatement = `import * as ${item.name} from ${quoteCharacter}${item.source}${quoteCharacter}`
