@@ -1,7 +1,7 @@
+import type semver from 'semver'
 import { useLogger } from 'reactive-vscode'
 import { match, P } from 'ts-pattern'
 import { displayName } from '../generated/meta'
-import semver from 'semver';
 
 export const logger = useLogger(displayName)
 
@@ -30,22 +30,22 @@ export function logError(contextName: string, error: unknown): void {
 export function logProgressMessageBuilderFactory(
   contextLabel: string,
 ) {
-  let callNumber = 1;
+  let callNumber = 1
 
   return (message?: string) => {
-    const postfix = message ? ` (${message})` : '';
-    const label = `${contextLabel} #${callNumber}${postfix}: `;
-    callNumber++;
-    return label;
+    const postfix = message ? ` (${message})` : ''
+    const label = `${contextLabel} #${callNumber}${postfix}: `
+    callNumber++
+    return label
   }
 }
 
 export function dependenciesToPrintableObject(dependencies: Map<string, semver.Range>): Record<string, string> {
-  const result: Record<string, string> = {};
+  const result: Record<string, string> = {}
 
   dependencies.forEach((versionRange, name) => {
-    result[name] = versionRange.raw;
-  });
+    result[name] = versionRange.raw
+  })
 
-  return result;
+  return result
 }

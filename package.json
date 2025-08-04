@@ -1,245 +1,245 @@
 {
-	"publisher": "TClark1011",
-	"name": "ace-imports",
-	"displayName": "Ace Imports",
-	"version": "1.3.0",
-	"private": true,
-	"packageManager": "pnpm@10.4.1",
-	"description": "Automatically create namespace imports (import * as X from 'x')",
-	"author": "Thomas Clark <thomassiclark@gmail.com>",
-	"license": "MIT",
-	"homepage": "https://github.com/TClark1011/ace-imports#readme",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/TClark1011/ace-imports"
-	},
-	"bugs": {
-		"url": "https://github.com/TClark1011/ace-imports/issues"
-	},
-	"categories": [
-		"Other"
-	],
-	"main": "./dist/index.js",
-	"icon": "res/icon.png",
-	"files": [
-		"LICENSE.md",
-		"dist/*",
-		"res/*"
-	],
-	"engines": {
-		"vscode": "^1.97.0"
-	},
-	"activationEvents": [
-		"onStartupFinished"
-	],
-	"contributes": {
-		"commands": [],
-		"configuration": {
-			"type": "object",
-			"title": "Ace Imports",
-			"properties": {
-				"ace-imports.imports": {
-					"type": "array",
-					"default": [],
-					"items": {
-						"type": "object",
-						"properties": {
-							"source": {
-								"type": "string",
+  "publisher": "TClark1011",
+  "name": "ace-imports",
+  "displayName": "Ace Imports",
+  "version": "1.3.0",
+  "private": true,
+  "packageManager": "pnpm@10.4.1",
+  "description": "Automatically create namespace imports (import * as X from 'x')",
+  "author": "Thomas Clark <thomassiclark@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/TClark1011/ace-imports#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TClark1011/ace-imports"
+  },
+  "bugs": {
+    "url": "https://github.com/TClark1011/ace-imports/issues"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/index.js",
+  "icon": "res/icon.png",
+  "files": [
+    "LICENSE.md",
+    "dist/*",
+    "res/*"
+  ],
+  "engines": {
+    "vscode": "^1.97.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [],
+    "configuration": {
+      "type": "object",
+      "title": "Ace Imports",
+      "properties": {
+        "ace-imports.imports": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
                 "description": "The path from which to import."
-							},
-							"name": {
-								"type": "string",
+              },
+              "name": {
+                "type": "string",
                 "description": "The name given to the variable in the import statement."
-							},
-							"dependency": {
-								"type": "string",
-								"pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?",
+              },
+              "dependency": {
+                "type": "string",
+                "pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?",
                 "description": "A package that must be installed for the import to be used. Can optionally provide a version range, seperated from the package name by @. Version ranges follow standard semver conventions.",
                 "examples": ["zod", "zod@^4", "valibot@0.5.0", "@types/node@^22"]
-							},
-							"id": {
-								"type": "string",
+              },
+              "id": {
+                "type": "string",
                 "description": "An identifier which can be used to disable this import via `ace-imports.disabled`."
-							},
+              },
               "kind": {
-								"type": "string",
-								"default": "Variable",
-								"enum": [
-									"Text",
-									"Method",
-									"Function",
-									"Constructor",
-									"Field",
-									"Variable",
-									"Class",
-									"Interface",
-									"Module",
-									"Property",
-									"Unit",
-									"Value",
-									"Enum",
-									"Keyword",
-									"Snippet",
-									"Color",
-									"File",
-									"Reference",
-									"Folder",
-									"EnumMember",
-									"Constant",
-									"Struct",
-									"Event",
-									"Operator",
-									"TypeParameter",
-									"User",
-									"Issue"
-								],
+                "type": "string",
+                "default": "Variable",
+                "enum": [
+                  "Text",
+                  "Method",
+                  "Function",
+                  "Constructor",
+                  "Field",
+                  "Variable",
+                  "Class",
+                  "Interface",
+                  "Module",
+                  "Property",
+                  "Unit",
+                  "Value",
+                  "Enum",
+                  "Keyword",
+                  "Snippet",
+                  "Color",
+                  "File",
+                  "Reference",
+                  "Folder",
+                  "EnumMember",
+                  "Constant",
+                  "Struct",
+                  "Event",
+                  "Operator",
+                  "TypeParameter",
+                  "User",
+                  "Issue"
+                ],
                 "description": "What kind of import VSCode will classify this as. Defaults to `Variable`, which is what all non-type namespaced imports are. There is no practical reason you would need to change this, but it is provided for completeness."
-							}
-						},
-						"required": [
-							"source",
-							"name"
-						]
-					},
-					"markdownDescription": "Imports to be used in the extension. IDs are only used for disabling imports via #ace-imports.disabled# or enabling them (if already disabled) via #ace-imports.workspaceAllowDisabled#. The `kind` property is used to determine how the import should be displayed in the editor. If not specified, it defaults to `Variable`. The `dependency` property is used to specify the dependency from which the import should be taken. If not specified, it defaults to the current workspace."
-          
-				},
-				"ace-imports.workspaceImports": {
-					"type": "array",
-					"default": [],
-					"items": {
-						"type": "object",
-						"properties": {
-							"source": {
-								"type": "string",
+              }
+            },
+            "required": [
+              "source",
+              "name"
+            ]
+          },
+          "markdownDescription": "Imports to be used in the extension. IDs are only used for disabling imports via #ace-imports.disabled# or enabling them (if already disabled) via #ace-imports.workspaceAllowDisabled#. The `kind` property is used to determine how the import should be displayed in the editor. If not specified, it defaults to `Variable`. The `dependency` property is used to specify the dependency from which the import should be taken. If not specified, it defaults to the current workspace."
+
+        },
+        "ace-imports.workspaceImports": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
                 "description": "The path from which to import."
-							},
-							"name": {
-								"type": "string",
+              },
+              "name": {
+                "type": "string",
                 "description": "The name given to the variable in the import statement."
-							},
-							"dependency": {
-								"type": "string",
-								"pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?",
+              },
+              "dependency": {
+                "type": "string",
+                "pattern": "^(@?[a-zA-Z0-9][\\w.-]*/)?[a-zA-Z0-9][\\w.-]*(@([\\^~]?v?\\d+(\\.\\d+)?(\\.\\d+)?(-[\\w.-]+)?(\\+[\\w.-]+)?|\\*|latest)$)?",
                 "description": "A package that must be installed for the import to be used. Can optionally provide a version range, seperated from the package name by @. Version ranges follow standard semver conventions.",
                 "examples": ["zod", "zod@^4", "valibot@0.5.0", "@types/node@^22"]
-							},
-							"id": {
-								"type": "string",
+              },
+              "id": {
+                "type": "string",
                 "description": "An identifier which can be used to disable this import via `ace-imports.disabled`."
-							},
+              },
               "kind": {
-								"type": "string",
-								"default": "Variable",
-								"enum": [
-									"Text",
-									"Method",
-									"Function",
-									"Constructor",
-									"Field",
-									"Variable",
-									"Class",
-									"Interface",
-									"Module",
-									"Property",
-									"Unit",
-									"Value",
-									"Enum",
-									"Keyword",
-									"Snippet",
-									"Color",
-									"File",
-									"Reference",
-									"Folder",
-									"EnumMember",
-									"Constant",
-									"Struct",
-									"Event",
-									"Operator",
-									"TypeParameter",
-									"User",
-									"Issue"
-								],
+                "type": "string",
+                "default": "Variable",
+                "enum": [
+                  "Text",
+                  "Method",
+                  "Function",
+                  "Constructor",
+                  "Field",
+                  "Variable",
+                  "Class",
+                  "Interface",
+                  "Module",
+                  "Property",
+                  "Unit",
+                  "Value",
+                  "Enum",
+                  "Keyword",
+                  "Snippet",
+                  "Color",
+                  "File",
+                  "Reference",
+                  "Folder",
+                  "EnumMember",
+                  "Constant",
+                  "Struct",
+                  "Event",
+                  "Operator",
+                  "TypeParameter",
+                  "User",
+                  "Issue"
+                ],
                 "description": "What kind of import VSCode will classify this as. Defaults to `Variable`, which is what all non-type namespaced imports are. There is no practical reason you would need to change this, but it is provided for completeness."
-							}
-						},
-						"required": [
-							"source",
-							"name"
-						]
-					},
-					"markdownDescription": "Extra import definitions that can be defined in workspace settings and will be appended to the `ace-imports.imports` setting. This allows you to define imports that are specific to a workspace without modifying your global imports."
-				},
-				"ace-imports.disabled": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"default": [],
-					"markdownDescription": "List of import IDs to disable"
-				},
-				"ace-imports.workspaceAllowDisabled": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
-					"default": [],
-					"markdownDescription": "List of disabled import IDs (`ace-imports.disabled`) that are allowed in the workspace. This allows you to disable an import globally, but allow it in a specific workspace."
-				},
-				"ace-imports.quoteStyle": {
-					"type": "string",
-					"default": "auto",
-					"enum": [
-						"single",
-						"double",
-						"backtick",
-						"auto"
-					],
-					"markdownDescription": "The quote style to use for imports. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used."
-				}
-			}
-		}
-	},
-	"scripts": {
-		"build": "tsdown src/index.ts --external vscode",
-		"dev": "nr build --watch --sourcemap",
-		"prepare": "nr generate",
-		"generate": "vscode-ext-gen --output src/generated/meta.ts",
-		"lint": "eslint .",
-		"vscode:prepublish": "nr build",
-		"publish": "nr build && vsce publish --no-dependencies",
-		"pack": "nr build && vsce package --no-dependencies",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit",
-		"bump": "bumpp --push --commit --tag",
-		"release": "bumpp && nr publish"
-	},
-	"devDependencies": {
-		"@antfu/eslint-config": "^4.2.1",
-		"@antfu/ni": "^23.3.1",
-		"@types/node": "^22.13.4",
-		"@types/semver": "^7.7.0",
-		"@types/vscode": "^1.97.0",
-		"@vscode/vsce": "^3.2.2",
-		"bumpp": "^10.0.3",
-		"eslint": "^9.20.1",
-		"esno": "^4.8.0",
-		"execa": "^9.6.0",
-		"pnpm": "^10.4.1",
-		"reactive-vscode": "^0.2.10",
-		"semver": "^7.7.2",
-		"ts-pattern": "^5.8.0",
-		"tsdown": "^0.9.6",
-		"typescript": "^5.7.3",
-		"vite": "^6.1.0",
-		"vitest": "^3.0.5",
-		"vscode-ext-gen": "^1.0.0",
-		"zod": "^4.0.11"
-	},
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"esbuild"
-		]
-	}
+              }
+            },
+            "required": [
+              "source",
+              "name"
+            ]
+          },
+          "markdownDescription": "Extra import definitions that can be defined in workspace settings and will be appended to the `ace-imports.imports` setting. This allows you to define imports that are specific to a workspace without modifying your global imports."
+        },
+        "ace-imports.disabled": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "List of import IDs to disable"
+        },
+        "ace-imports.workspaceAllowDisabled": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "List of disabled import IDs (`ace-imports.disabled`) that are allowed in the workspace. This allows you to disable an import globally, but allow it in a specific workspace."
+        },
+        "ace-imports.quoteStyle": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "single",
+            "double",
+            "backtick",
+            "auto"
+          ],
+          "markdownDescription": "The quote style to use for imports. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --external vscode",
+    "dev": "nr build --watch --sourcemap",
+    "prepare": "nr generate",
+    "generate": "vscode-ext-gen --output src/generated/meta.ts",
+    "lint": "eslint .",
+    "vscode:prepublish": "nr build",
+    "publish": "nr build && vsce publish --no-dependencies",
+    "pack": "nr build && vsce package --no-dependencies",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "bump": "bumpp --push --commit --tag",
+    "release": "bumpp && nr publish"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.2.1",
+    "@antfu/ni": "^23.3.1",
+    "@types/node": "^22.13.4",
+    "@types/semver": "^7.7.0",
+    "@types/vscode": "^1.97.0",
+    "@vscode/vsce": "^3.2.2",
+    "bumpp": "^10.0.3",
+    "eslint": "^9.20.1",
+    "esno": "^4.8.0",
+    "execa": "^9.6.0",
+    "pnpm": "^10.4.1",
+    "reactive-vscode": "^0.2.10",
+    "semver": "^7.7.2",
+    "ts-pattern": "^5.8.0",
+    "tsdown": "^0.9.6",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5",
+    "vscode-ext-gen": "^1.0.0",
+    "zod": "^4.0.11"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
 }

@@ -1,9 +1,9 @@
 import type { QuoteStyle } from '../types'
 import type { ConfigFileType } from './fs-helpers'
 import fs from 'node:fs'
+import path from 'node:path'
 import { configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers'
 import { memo } from './memo'
-import path from 'node:path'
 
 export function getQuoteStyleUsedInCode(text: string): QuoteStyle | undefined {
   const singleQuoteRegex = /'/g
