@@ -8,5 +8,5 @@ const baseConfig = defineConfigObject<Meta.ScopedConfigKeyTypeMap>(
 
 export const config = {
   ...baseConfig,
-  quoteStyle: baseConfig.quoteStyle || undefined, // Missing settings is defaulting to empty string for some reason
+  quoteStyle: baseConfig.quoteStyle === "auto" ? undefined : baseConfig.quoteStyle,
 }

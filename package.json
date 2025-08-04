@@ -113,11 +113,13 @@
         },
         "ace-imports.quoteStyle": {
           "type": "string",
-          "markdownDescription": "The quote style to use for imports. Can be `single`, `double`, or `backtick`. If not provided it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected, it will default to `double`.",
+          "default": "auto",
+          "markdownDescription": "The quote style to use for imports. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used.",
           "enum": [
             "single",
             "double",
-            "backtick"
+            "backtick",
+            "auto"
           ]
         }
       }

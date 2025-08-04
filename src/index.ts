@@ -1,4 +1,4 @@
-import type { ExtSettingImportRule, ExtSettingQuoteStyle } from './types'
+import type { ExtSettingImportRule, QuoteStyle } from './types'
 import path from 'node:path'
 import { defineExtension } from 'reactive-vscode'
 import semver from 'semver'
@@ -49,7 +49,7 @@ const { activate, deactivate } = defineExtension(() => {
 
   // TODO: Watch formatter config files for changes and clear the memo cache
 
-  let lastFoundQuoteStyle: ExtSettingQuoteStyle | undefined
+  let lastFoundQuoteStyle: QuoteStyle | undefined
 
   LANGUAGES.forEach((language) => {
     languages.registerCompletionItemProvider(
@@ -63,7 +63,7 @@ const { activate, deactivate } = defineExtension(() => {
           try {
             logger.info('provideCompletionItems #1: Starting')
 
-            const detectedQuoteStyle: ExtSettingQuoteStyle = config.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
+            const detectedQuoteStyle: QuoteStyle = config.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
             lastFoundQuoteStyle = detectedQuoteStyle
 
             const quoteCharacter = quoteCharacters[detectedQuoteStyle]

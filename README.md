@@ -82,7 +82,7 @@ Now the extension will create `import * as z from 'zod/v4'` if you have zod vers
 **Import Kind:** You can also specify the classification VSCode will apply to the import, which will affect the icon that is shown next to the suggestion item and possibly also the item's sorting order. This is done using the `kind` field, which accepts any of VS Code's `CompletionItemKind` enum values (when editting the settings your IDE will provide autocompletion for these). By default, the `Variable` kind is used, which is what a namespace import is actually classified as, so there isn't any situation where you need to change this, but it's there if you want to use it.
 
 ### Quote Style
-You can specify the kind of quotes that should be used for the import statements using the `ace-imports.quoteStyle` setting. The available options are `single`, `double`, and `backtick`. If not provided, the extension will attempt to detect the quote style by looking at your eslint/prettier config files, or the quote style used in the code. If no quote style can be detected, it will default to `double`.
+You can specify the kind of quotes that should be used for the import statements using the `ace-imports.quoteStyle` setting. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used.
 
 ```json
 {

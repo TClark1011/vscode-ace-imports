@@ -1,10 +1,10 @@
-import type { ExtSettingQuoteStyle } from '../types'
+import type { QuoteStyle } from '../types'
 import { ConfigFileType, configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers';
 import fs from 'node:fs'
 import { memo } from './memo';
 import { TextDocument } from 'vscode';
 
-export function getQuoteStyleUsedInCode(text: string): ExtSettingQuoteStyle | undefined {
+export function getQuoteStyleUsedInCode(text: string): QuoteStyle | undefined {
   const singleQuoteRegex = /'/g
   const doubleQuoteRegex = /"/g
   const backtickRegex = /`/g
@@ -26,7 +26,7 @@ export function getQuoteStyleUsedInCode(text: string): ExtSettingQuoteStyle | un
   return undefined // No clear quote style found
 }
 
-export const quoteCharacters: Record<ExtSettingQuoteStyle, string> = {
+export const quoteCharacters: Record<QuoteStyle, string> = {
   single: '\'',
   double: '"',
   backtick: '`',
@@ -38,10 +38,10 @@ const eslintConfigFileNames = ['.eslintrc', '.eslintrc.json', '.eslintrc.js', '.
 type QuoteConfigFileKind = 'prettier' | 'eslint';
 
 
-export const getQuoteStyleFromConfig = memo((workingPath: string): ExtSettingQuoteStyle | undefined => {
+export const getQuoteStyleFromConfig = memo((workingPath: string): QuoteStyle | undefined => {
 	let configFileNames = prettierConfigFileNames.concat(eslintConfigFileNames);
 
-	let quoteStyle: ExtSettingQuoteStyle | undefined;
+	let quoteStyle: QuoteStyle | undefined;
 
 	while (quoteStyle === undefined && configFileNames.length > 0) {
 		const configFile = findFirstFileUpwards(
