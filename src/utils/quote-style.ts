@@ -1,8 +1,8 @@
 import type { QuoteStyle } from '../types'
-import { ConfigFileType, configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers';
+import type { ConfigFileType } from './fs-helpers'
 import fs from 'node:fs'
-import { memo } from './memo';
-import { TextDocument } from 'vscode';
+import { configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers'
+import { memo } from './memo'
 
 export function getQuoteStyleUsedInCode(text: string): QuoteStyle | undefined {
   const singleQuoteRegex = /'/g
@@ -35,60 +35,70 @@ export const quoteCharacters: Record<QuoteStyle, string> = {
 const prettierConfigFileNames = ['.prettierrc', '.prettierrc.json', '.prettierrc.js', '.prettierrc.yaml', '.prettierrc.toml']
 const eslintConfigFileNames = ['.eslintrc', '.eslintrc.json', '.eslintrc.js', '.eslintrc.yaml', '.eslintrc.toml']
 
-type QuoteConfigFileKind = 'prettier' | 'eslint';
-
+type QuoteConfigFileKind = 'prettier' | 'eslint'
 
 export const getQuoteStyleFromConfig = memo((workingPath: string): QuoteStyle | undefined => {
-	let configFileNames = prettierConfigFileNames.concat(eslintConfigFileNames);
+  let configFileNames = prettierConfigFileNames.concat(eslintConfigFileNames)
 
-	let quoteStyle: QuoteStyle | undefined;
+  let quoteStyle: QuoteStyle | undefined
 
-	while (quoteStyle === undefined && configFileNames.length > 0) {
-		const configFile = findFirstFileUpwards(
-			configFileNames,
-			workingPath,
-		)
-	
-		if (!configFile) return undefined
-	
-		const configContent = fs.readFileSync(configFile, 'utf-8');
-		const configFileKind: QuoteConfigFileKind = 
-			prettierConfigFileNames.some(name => configFile.endsWith(name)) ? 'prettier' : 'eslint';
+  while (quoteStyle === undefined && configFileNames.length > 0) {
+    const configFile = findFirstFileUpwards(
+      configFileNames,
+      workingPath,
+    )
 
-		const configFileType: ConfigFileType | undefined
-		 = (configFile.endsWith('.json') || configFile.endsWith('.prettierrc') || configFile.endsWith('.eslintrc')) ? 'json'
-			: configFile.endsWith('.js') ? 'js'
-			: configFile.endsWith('.yaml') ? 'yaml'
-			: configFile.endsWith('.toml') ? 'toml'
-			: undefined;
+    if (!configFile)
+      return undefined
 
-		if (!configFileType) {
-			throw new Error(`Unsupported config file type: ${configFile}`);
-		}
+    const configContent = fs.readFileSync(configFile, 'utf-8')
+    const configFileKind: QuoteConfigFileKind
+			= prettierConfigFileNames.some(name => configFile.endsWith(name)) ? 'prettier' : 'eslint'
 
-		const propertyChecker = configFileTypePropertyFinders[configFileType];
+    const configFileType: ConfigFileType | undefined
+		 = (configFile.endsWith('.json') || configFile.endsWith('.prettierrc') || configFile.endsWith('.eslintrc'))
+		   ? 'json'
+		   : configFile.endsWith('.js')
+		     ? 'js'
+		     : configFile.endsWith('.yaml')
+		       ? 'yaml'
+		       : configFile.endsWith('.toml')
+		         ? 'toml'
+		         : undefined
 
-		if (configFileKind === 'prettier') {
-			if (propertyChecker(configContent, 'singleQuote', true)) {
-				quoteStyle = 'single';
-			} else if (propertyChecker(configContent, 'singleQuote', false)) {
-				quoteStyle = 'double';
-			} else {
-				configFileNames = configFileNames.filter(name => !prettierConfigFileNames.includes(name));
-				// Remove prettier files from search list if we didn't find a quote style
-			}
-		} else if (configFileKind === 'eslint') {
-			if (propertyChecker(configContent, 'quotes', 'single')) {
-				quoteStyle = 'single';
-			} else if (propertyChecker(configContent, 'quotes', 'double')) {
-				quoteStyle = 'double';
-			} else if (propertyChecker(configContent, 'quotes', 'backtick')) {
-				quoteStyle = 'backtick';
-			} else {
-				configFileNames = configFileNames.filter(name => !eslintConfigFileNames.includes(name));
-				// Remove eslint files from search list if we didn't find a quote style
-			}
-		}
-	}
-	return quoteStyle;
-});
+    if (!configFileType) {
+      throw new Error(`Unsupported config file type: ${configFile}`)
+    }
+
+    const propertyChecker = configFileTypePropertyFinders[configFileType]
+
+    if (configFileKind === 'prettier') {
+      if (propertyChecker(configContent, 'singleQuote', true)) {
+        quoteStyle = 'single'
+      }
+      else if (propertyChecker(configContent, 'singleQuote', false)) {
+        quoteStyle = 'double'
+      }
+      else {
+        configFileNames = configFileNames.filter(name => !prettierConfigFileNames.includes(name))
+        // Remove prettier files from search list if we didn't find a quote style
+      }
+    }
+    else if (configFileKind === 'eslint') {
+      if (propertyChecker(configContent, 'quotes', 'single')) {
+        quoteStyle = 'single'
+      }
+      else if (propertyChecker(configContent, 'quotes', 'double')) {
+        quoteStyle = 'double'
+      }
+      else if (propertyChecker(configContent, 'quotes', 'backtick')) {
+        quoteStyle = 'backtick'
+      }
+      else {
+        configFileNames = configFileNames.filter(name => !eslintConfigFileNames.includes(name))
+        // Remove eslint files from search list if we didn't find a quote style
+      }
+    }
+  }
+  return quoteStyle
+})
