@@ -39,7 +39,9 @@ If the source of the import does not match the package name, you can specify the
 }
 ```
 
-`import * as Schema from 'effect/Schema'.
+```js
+import * as Schema from 'effect/Schema'
+```
 
 Additionally, you can use the `dependency` field to specify a version range for the dependency, so that the import can only be created if the correct version of the dependency is installed.
 
@@ -73,6 +75,10 @@ If you have multiple import rules with the same `name`, the one with the highest
     }
   ]
 }
+```
+
+```js
+import * as z from 'zod/v4'
 ```
 
 Now the extension will create `import * as z from 'zod/v4'` if you have zod version 4 installed, if you have a different version of `zod` installed it will create `import * as z from 'zod'`.
