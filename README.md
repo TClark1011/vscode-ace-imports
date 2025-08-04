@@ -57,6 +57,10 @@ Additionally, you can use the `dependency` field to specify a version range for 
 }
 ```
 
+```js
+import * as Schema from 'effect/Schema'
+```
+
 This rule will create `import * as z from 'zod/v4'`, but only if your installed version of zod is at major version 4. The range specifier supports the [semver](https://semver.org) syntax ([cheatsheet](https://devhints.io/semver)).
 
 If you have multiple import rules with the same `name`, the one with the highest matching dependency version will be used (imports that don't specify a dependency version are counted as having a version of `0.0.0` for this comparison). For example, we could use both our our `zod` examples together like this:
@@ -75,10 +79,6 @@ If you have multiple import rules with the same `name`, the one with the highest
     }
   ]
 }
-```
-
-```js
-import * as z from 'zod/v4'
 ```
 
 Now the extension will create `import * as z from 'zod/v4'` if you have zod version 4 installed, if you have a different version of `zod` installed it will create `import * as z from 'zod'`.
