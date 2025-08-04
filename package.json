@@ -36,7 +36,7 @@
     "commands": [],
     "configuration": {
       "type": "object",
-      "title": "ace-imports",
+      "title": "Ace Imports",
       "properties": {
         "ace-imports.imports": {
           "type": "array",
