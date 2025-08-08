@@ -153,8 +153,7 @@ You can specify the kind of quotes that should be used for the import statements
     "dependency": "zod@>=4",
     "id": "zod-mini"
   }],
-  "ace-imports.disabled": ["zod-mini"],
-  "ace-imports.quoteStyle": "single"
+  "ace-imports.disabled": ["zod-mini"]
 }
 ```
 
@@ -187,23 +186,41 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Add option to imports to define required dependency (eg; `zod/v4` import requires `zod@^4.0.0`)
 - [x] Handle priority if multiple imports match (eg; prefer to import `zod/v4` over `zod`)
 - [x] Add way to disable imports (make it a seperate option not defined in the import rule itself, that way you can disable certain imports in different projects, eg; disabling `zod/v4` even if it is installed)
-- [ ] Option to specify specific package.json files to check for installed dependencies
 - [x] Custom extension icon
-- [ ] Improve mechanism for determining if a package is installed
+- [x] Option to specify package.json file(s) to check for installed packages
 - [x] Support javascript, javascriptreact and typescriptreact files
 - [ ] Option to run "sort import" and/or "format document" actions after import is added
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [x] Clear package.json cache when package.json changes
 - [x] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
 - [x] Option for quote style (single or double quotes)
+- [ ] Show warning for node_modules any time a non-ignored package.json file is found in a node_modules folder
+  - When watching changes
+  - When constructing dependencies
+- [ ] Add a command for creating imports and an option to disable completions (so the only way to create an import is through the command, in case users are annoyed by the auto-completion suggestions that are always present)
 - [ ] Publish to extension marketplace
 
-### Later Additions
+### Later Improvements
 
+#### Features
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
 - [ ] Support default imports (eg; `import X from 'x'`)
 - [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Allow import rules to be scoped to specific files (glob is probably best way to do this) (eg; allow `zod/mini` import in `web` folder, but not in `server` folder)
+- [ ] Option to specify dependency detection "rules" for different files, options of rules include...
+ - What files are a rule applied too
+ - What `package.json` file(s) to check
+ - What kind of dependencies to check (eg; `dependencies`, `devDependencies`, `optionalDependencies`)
+- [ ] Handle multiple workspace folders
+ - use `useWorkspaceFolders` function from `reactive-vscode`
+ - Scope dependencies to workspace folders by prefixing globs with workspace folder path
+ - use `vscode.workspace.getWorkspaceFolder` to determine which workspace folder a file belongs to
+
+#### Other Improvements
+- [x] Handle disposal of completion provider (https://kermanx.com/reactive-vscode/guide/disposable.html)
+- [ ] Split up parsed settings into individual reactive variables, so that they can be subscribed to individually, rather than having to subscribe to the whole settings object
+- [ ] Move quote detection into `resolveCompletionItem` (inside the `registerCompletionItemProvider` call) method to improve performance
+- [ ] Improve mechanism for determining if a package is installed
 
 ### Testing
 - [ ] Scoped packages eg; (`@scope/package`)
@@ -213,6 +230,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Disabling + Re-enabling with "!"
 - [x] Import rule dependency + collision resolution
 - [ ] Move development documentation to a separate file
+- [ ] Limitation that the generated suggestions will always be present even when it doesn't fit the context (I don't know of any way to fix this, if someone does please reach out)
 
 ### Todo Notes
 

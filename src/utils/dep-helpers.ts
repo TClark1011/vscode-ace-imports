@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
-import { findFirstFileUpwards } from './fs-helpers'
 import { memo } from './memo'
 
 const semverSchema = z.string().refine(
@@ -61,32 +60,16 @@ function readPackageJson(path: string): PackageJson {
   const untypedParsed = JSON.parse(rawData)
   return packageJsonSchema.parse(untypedParsed)
 }
+export function getActiveDependencySpecifiersFromPackage(packagePath: string): Map<string, semver.Range> {
+  const packageJson = readPackageJson(packagePath)
 
-/**
- * Returns a map, keys are dependency names, values are their version specifiers
- * found in the nearest `package.json` files.
- */
-export const getActiveDependencySpecifiers = memo((path: string): Map<string, semver.Range> => {
-  const packageFilePath = findFirstFileUpwards(
-    'package.json',
-    path,
-    20, // max depth
-  )
+  const dependencies = new Map<string, semver.Range>();
 
-  if (!packageFilePath)
-    return new Map()
-
-  const packages = [packageFilePath].map(readPackageJson) // Eventually will support multiple package.json files
-
-  const result = new Map<string, semver.Range>()
-
-  packages.forEach((pkg) => {
-    [pkg.dependencies, pkg.devDependencies, pkg.peerDependencies].forEach((value) => {
-      Object.entries(value ?? {}).forEach(([name, version]) => {
-        result.set(name, new semver.Range(version))
-      })
+  [packageJson.dependencies, packageJson.devDependencies, packageJson.peerDependencies].forEach((value) => {
+    Object.entries(value ?? {}).forEach(([name, version]) => {
+      dependencies.set(name, new semver.Range(version))
     })
   })
 
-  return result
-})
+  return dependencies
+}

@@ -9,7 +9,7 @@
 
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "${workspaceFolder}/demos/zod"
+        "${workspaceFolder}/demos/${input:testWorkspace}"
       ],
       "outFiles": [
         "${workspaceFolder}/dist/**/*.js"
@@ -17,5 +17,14 @@
       "preLaunchTask": "npm: dev",
       "env": { "VSCODE_DEBUG_MODE": "true" }
     }
-  ]
+  ],
+  "inputs": [{
+    "id": "testWorkspace",
+    "type": "pickString",
+    "description": "Which test workspace to use",
+    "options": [
+      "zod",
+      "monorepo"
+    ]
+  }]
 }

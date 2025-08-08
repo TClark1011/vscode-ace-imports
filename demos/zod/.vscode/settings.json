@@ -16,5 +16,6 @@
     }
   ],
   "ace-imports.disabled": ["zod-mini"],
-  "ace-imports.workspaceAllowDisabled": ["zod-mini"]
+  // "ace-imports.workspaceAllowDisabled": ["zod-mini"],
+  "ace-imports.disableNodeModulesWarning": true
 }

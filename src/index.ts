@@ -1,10 +1,11 @@
+import type { Ref } from 'reactive-vscode'
 import type { ExtSettingImportRule, QuoteStyle } from './types'
-import path from 'node:path'
-import { defineExtension, watchEffect } from 'reactive-vscode'
+import { matchesGlob } from 'node:path'
+import { computed, defineExtension, ref, useDisposable, useWorkspaceFolders, watchEffect } from 'reactive-vscode'
 import semver from 'semver'
-import { CompletionItemKind, languages, workspace } from 'vscode'
+import * as vscode from 'vscode'
 import { parsedConfigRef } from './config'
-import { getActiveDependencySpecifiers, parseImportRuleDependency } from './utils/dep-helpers'
+import { getActiveDependencySpecifiersFromPackage, parseImportRuleDependency } from './utils/dep-helpers'
 import { env } from './utils/env'
 import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from './utils/logger'
 import { getQuoteStyleFromConfig, getQuoteStyleUsedInCode, quoteCharacters } from './utils/quote-style'
@@ -14,187 +15,273 @@ const LANGUAGES = ['javascript', 'javascriptreact', 'typescript', 'typescriptrea
 
 const disabledImportIds = new Set<string>()
 
-// Have to accept disabled imports as a param so we can call it
-// reactively
-function fillOutDisabledImportIds(disabledImports: string[], allowedDisabledImports: string[]) {
-  disabledImports.forEach((id) => {
-    disabledImportIds.add(id)
-  })
-  allowedDisabledImports.forEach((id) => {
-    disabledImportIds.delete(id)
-  })
-  logger.info('Evaluated disabled import IDs:', formatObject(Array.from(disabledImportIds)))
-}
-
-fillOutDisabledImportIds(parsedConfigRef.value.disabled, parsedConfigRef.value.allowDisabled)
-
 watchEffect(() => {
   disabledImportIds.clear()
-  fillOutDisabledImportIds(parsedConfigRef.value.disabled, parsedConfigRef.value.allowDisabled)
+  parsedConfigRef.value.disabled
+    .filter(id => !parsedConfigRef.value.allowDisabled.includes(id))
+    .forEach(id => disabledImportIds.add(id))
+
+  logger.info('Evaluated disabled import IDs:', formatObject(Array.from(disabledImportIds)))
 })
 
+function useActiveDependencies(): Ref<Map<string, semver.Range>> {
+  const lgp = logProgressMessageBuilderFactory(useActiveDependencies.name)
+  try {
+    logger.info(lgp('Starting'))
+
+    const combinedPackageMatcherGlobRef = computed(() =>
+      `{${parsedConfigRef.value.packageMatcherGlobs.join(',')}}`)
+    const combinedPackageMatcherIgnoreGlobRef = computed(() =>
+      `{${parsedConfigRef.value.packageMatcherIgnoreGlobs.join(',')}}`)
+
+    // Maps file paths of package.json files to their dependencies
+    const fileToDependenciesRef = ref<Map<string, Map<string, semver.Range>>>(new Map())
+
+    // Detect package.json file dependencies at startup and whenever the extension settings
+    // affecting package file detection change
+    watchEffect(async () => {
+      const lgp = logProgressMessageBuilderFactory(`${useActiveDependencies.name}_watchEffect_dependencyInitialization`)
+      try {
+        logger.info(lgp('Starting'), formatObject({
+          combinedPackageMatcherGlob: combinedPackageMatcherGlobRef.value,
+          combinedPackageMatcherIgnoreGlob: combinedPackageMatcherIgnoreGlobRef.value,
+        }))
+        const files = await vscode.workspace.findFiles(
+          combinedPackageMatcherGlobRef.value,
+          combinedPackageMatcherIgnoreGlobRef.value,
+          20, // max results
+        )
+
+        logger.info(lgp('Found package.json files'), formatObject(
+          files.map(file => file.fsPath),
+        ))
+
+        const packageFilePaths = files.filter(file => file.fsPath.endsWith('package.json')).map(uri => uri.fsPath)
+
+        // If package file detection settings have changed such that a previously detected
+        // package file should no longer be tracked, we discard it
+        const freshlyDiscardedPackageFiles = [...fileToDependenciesRef.value.keys()].filter(filePath => !packageFilePaths.includes(filePath))
+        logger.info(lgp('Discarding dependencies for package files that are no longer tracked'), formatObject(freshlyDiscardedPackageFiles))
+        freshlyDiscardedPackageFiles.forEach((filePath) => {
+          fileToDependenciesRef.value.delete(filePath)
+        })
+
+        packageFilePaths.forEach((filePath) => {
+          fileToDependenciesRef.value.set(
+            filePath,
+            getActiveDependencySpecifiersFromPackage(filePath),
+          )
+        })
+      }
+      catch (error) {
+        logError(lgp, error)
+      }
+    })
+
+    const workspaceFoldersRef = useWorkspaceFolders()
+
+    watchEffect((onCleanup) => {
+      const lgp = logProgressMessageBuilderFactory(`${useActiveDependencies.name}_watchEffect_fileWatchers`)
+      try {
+        logger.info(lgp('Creating file watchers for package.json files'))
+        const watcher = vscode.workspace.createFileSystemWatcher(
+          combinedPackageMatcherGlobRef.value,
+        )
+        onCleanup(() => {
+          logger.info(lgp('Disposing file watcher'))
+          watcher.dispose()
+        })
+        logger.info(lgp('Created file watcher'))
+
+        const workspaceIgnorePatterns = (workspaceFoldersRef.value ?? []).map(folder => `${folder.uri.fsPath}/${combinedPackageMatcherIgnoreGlobRef.value}`)
+        function listener(uri: vscode.Uri, eventKind: vscode.FileChangeType) {
+          logger.info(
+            `Package file ${vscode.FileChangeType[eventKind].toLowerCase()}: `,
+            uri.fsPath,
+          )
+
+          if (
+            !uri.fsPath.endsWith('package.json') // is not package.json file
+            || workspaceIgnorePatterns.some(ignorePattern => matchesGlob(uri.fsPath, ignorePattern)) // matches any ignore pattern
+          ) {
+            return
+          }
+
+          if (eventKind === vscode.FileChangeType.Deleted) {
+            fileToDependenciesRef.value.delete(uri.fsPath)
+            return
+          }
+
+          const dependencies = getActiveDependencySpecifiersFromPackage(uri.fsPath)
+          logger.info(lgp('New package file dependencies'), formatObject({
+            path: uri.fsPath,
+            dependencies: dependenciesToPrintableObject(dependencies),
+          }))
+          fileToDependenciesRef.value.set(uri.fsPath, dependencies)
+        }
+
+        watcher.onDidCreate(uri => listener(uri, vscode.FileChangeType.Created))
+        watcher.onDidChange(uri => listener(uri, vscode.FileChangeType.Changed))
+        watcher.onDidDelete(uri => listener(uri, vscode.FileChangeType.Deleted))
+      }
+      catch (error) {
+        logError(lgp, error)
+      }
+    })
+
+    const activeDependenciesRef = computed(() => {
+      const combinedDependencies = new Map(...fileToDependenciesRef.value.values())
+      logger.info('Computed active dependencies: ', formatObject(dependenciesToPrintableObject(combinedDependencies)))
+      return combinedDependencies
+    })
+
+    return activeDependenciesRef
+  }
+  catch (error) {
+    logError(lgp, error)
+    throw error
+  }
+}
+
 const { activate, deactivate } = defineExtension(() => {
-  if (env.debug)
-    logger.show()
+  const lgp = logProgressMessageBuilderFactory('defineExtension')
+  try {
+    if (env.debug)
+      logger.show()
 
-  logger.info('Extension activated')
-  logger.info('Extension configuration:', formatObject(parsedConfigRef.value))
+    logger.info(lgp('Extension activated'))
+    logger.info(lgp('Extension configuration'), formatObject(parsedConfigRef.value))
 
-  // Clear package.json read cache when package.json changes
-  const packageWatcher = workspace.createFileSystemWatcher('**/package.json')
-  packageWatcher.onDidChange((uri) => {
-    if (uri.fsPath.includes(`${path.sep}node_modules${path.sep}`))
-      return
-    logger.info('package.json changed:', uri.fsPath)
+    const activeDependenciesRef = useActiveDependencies()
 
-    getActiveDependencySpecifiers.clearMemoCache()
-  })
+    const primaryWorkspace = vscode.workspace.workspaceFolders?.[0]
+    if (!primaryWorkspace) {
+      throw new Error('No primary workspace folder found. Cannot activate extension without a workspace folder.')
+    }
 
-  // Change this workspace config detection to be an array of objects with
-  // `path` and `quoteStyle` properties, so we can support multiple workspace
-  // folders. Then when providing completions, we check which workspace folder
-  // the document and belongs to and use the corresponding config.
+    logger.info(lgp('Primary workspace folder path:'), primaryWorkspace.uri.fsPath)
 
-  const primaryWorkspacePath = workspace.workspaceFolders?.[0]?.uri.fsPath
-  if (primaryWorkspacePath) {
-    logger.info('Primary workspace folder path:', primaryWorkspacePath)
-  }
-  const quoteStyleForWorkspace = getQuoteStyleFromConfig(primaryWorkspacePath ?? '')
-  if (quoteStyleForWorkspace) {
-    logger.info('Quote style from workspace formatter config:', quoteStyleForWorkspace)
-  }
+    const quoteStyleForWorkspace = getQuoteStyleFromConfig(primaryWorkspace.uri.fsPath)
+    if (quoteStyleForWorkspace) {
+      logger.info(lgp('Quote style from workspace formatter config:'), quoteStyleForWorkspace)
+    }
 
-  // TODO: Watch formatter config files for changes and clear the memo cache
+    let lastFoundQuoteStyle: QuoteStyle | undefined
 
-  let lastFoundQuoteStyle: QuoteStyle | undefined
-
-  LANGUAGES.forEach((language) => {
-    languages.registerCompletionItemProvider(
-      {
-        scheme: 'file',
-        language,
-      },
-      {
-        // TODO: Move quote detection to `resolveCompletionItem` to improve performance
-        provideCompletionItems(document) {
-          try {
-            const lgp = logProgressMessageBuilderFactory('provideCompletionItems')
-            logger.info(lgp('Starting'))
-
-            const detectedQuoteStyle: QuoteStyle = parsedConfigRef.value.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
-            lastFoundQuoteStyle = detectedQuoteStyle
-
-            const quoteCharacter = quoteCharacters[detectedQuoteStyle]
-
-            const installedDependencies = getActiveDependencySpecifiers(
-              path.dirname(document.fileName),
-            )
-
-            logger.info(lgp('Detected installed dependencies'), formatObject({installedDependencies: dependenciesToPrintableObject(installedDependencies)}))
-
-            const nonDisabledImports = parsedConfigRef.value.imports.filter((item) => {
-              if (!item.id)
-                return true
-
-              return !disabledImportIds.has(item.id)
-            })
-
-            logger.info(lgp('Filtered out disabled imports'), formatObject({nonDisabledImports}))
-
-            const notAlreadyImported
-            = nonDisabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
-
-            logger.info(lgp('Filtered out already imported items'), formatObject({notAlreadyImported}))
-
-            const installed = notAlreadyImported.filter((item) => {
-              const dependency = item.dependency ?? item.source
-
-              const dependencyRequirementData = parseImportRuleDependency(dependency)
-              const localDependencyVersionRange = installedDependencies.get(dependencyRequirementData.name)
-
-              if (!localDependencyVersionRange)
-                return false
-
-              const minVersion = semver.minVersion(localDependencyVersionRange)
-              if (!minVersion)
-                throw new Error(`Unable to determine minimum version for "${dependencyRequirementData.name}" with range "${localDependencyVersionRange.raw}"`)
-
-              return semver.satisfies(minVersion, dependencyRequirementData.versionRange)
-            })
-
-            logger.info(lgp('Filtered out imports that are not satisfied by installed dependencies'), formatObject({installed}))
-
-            /**
-             * If there are multiple imports that use the same name, we
-             * need to remove duplicates, selecting the best fit for each.
-             * The quality of the import is determined by the one with the
-             * latest satisfied dependency.
-             */
-
-            const bestNameVersions = new Map<string, ExtSettingImportRule>() // key = name, value = the whole import rule
-            installed.forEach((item) => {
-              const currentBest = bestNameVersions.get(item.name)
-              let itemIsBest = !currentBest || (!currentBest.dependency && !!item.dependency)
-
-              if (!itemIsBest && item.dependency && currentBest?.dependency) {
-                const currentBestVersion = parseImportRuleDependency(currentBest.dependency).versionRange
-                const itemVersion = parseImportRuleDependency(item.dependency).versionRange
-
-                try {
-                  itemIsBest
-                = !currentBestVersion
-                  || currentBestVersion.raw === itemVersion.raw
-                  || currentBestVersion.raw === '*' && itemVersion.raw !== '*'
-                  || semver.gte(semver.minVersion(itemVersion ?? '*')!, semver.minVersion(currentBestVersion ?? '*')!)
-                }
-                catch (error) {
-                  logger.error('Error comparing versions', formatObject({
-                    error,
-                    currentBestVersion,
-                    itemVersion,
-                    itemIsBest,
-                  }))
-                }
-              }
-
-              if (itemIsBest) {
-                bestNameVersions.set(item.name, item)
-              }
-            })
-
-            logger.info(lgp('Resolved duplicate named imports'), formatObject({
-              bestNameVersions: Array.from(bestNameVersions.entries()).map(([name, item]) => ({ name, item })),
-            }))
-
-            const finalActiveImports = Array.from(bestNameVersions.values())
-
-            logger.info(lgp('Finished evaluating applicable imports'), formatObject({finalActiveImports}))
-
-            return finalActiveImports.map((item) => {
-              const importStatement = `import * as ${item.name} from ${quoteCharacter}${item.source}${quoteCharacter}`
-              const labelDetail = '*'
-
-              return ({
-                label: {
-                  label: item.name,
-                  detail: labelDetail,
-                  description: item.source,
-                },
-                kind: CompletionItemKind[item.kind ?? 'Variable'],
-                additionalTextEdits: [textEditInsertAtStart(`${importStatement};\n`)],
-                insertText: item.name,
-                detail: `Add namespace import from "${item.source}"`,
-                filterText: `${item.name}${labelDetail}`,
-              })
-            })
-          }
-          catch (error) {
-            logError('provideCompletionItems', error)
-          }
+    LANGUAGES.forEach((language) => {
+      useDisposable(vscode.languages.registerCompletionItemProvider(
+        {
+          scheme: 'file',
+          language,
         },
-      },
-    )
-  })
+        {
+          provideCompletionItems(document) {
+            try {
+              const lgp = logProgressMessageBuilderFactory('provideCompletionItems')
+              logger.info(lgp('Starting'))
+
+              const detectedQuoteStyle: QuoteStyle = parsedConfigRef.value.quoteStyle ?? quoteStyleForWorkspace ?? getQuoteStyleUsedInCode(document.getText()) ?? lastFoundQuoteStyle ?? 'double'
+              lastFoundQuoteStyle = detectedQuoteStyle
+
+              const quoteCharacter = quoteCharacters[detectedQuoteStyle]
+
+              const nonDisabledImports = parsedConfigRef.value.imports.filter((item) => {
+                if (!item.id)
+                  return true
+
+                return !disabledImportIds.has(item.id)
+              })
+
+              logger.info(lgp('Filtered out disabled imports'), formatObject({ nonDisabledImports }))
+
+              const notAlreadyImported
+              = nonDisabledImports.filter(item => !document.getText().includes(`import * as ${item.name}`))
+
+              logger.info(lgp('Filtered out already imported items'), formatObject({ notAlreadyImported }))
+
+              const installed = notAlreadyImported.filter((item) => {
+                const dependency = item.dependency ?? item.source
+
+                const dependencyRequirementData = parseImportRuleDependency(dependency)
+                const localDependencyVersionRange = activeDependenciesRef.value.get(dependencyRequirementData.name)
+
+                if (!localDependencyVersionRange)
+                  return false
+
+                const minVersion = semver.minVersion(localDependencyVersionRange)
+                if (!minVersion)
+                  throw new Error(`Unable to determine minimum version for "${dependencyRequirementData.name}" with range "${localDependencyVersionRange.raw}"`)
+
+                return semver.satisfies(minVersion, dependencyRequirementData.versionRange)
+              })
+
+              logger.info(lgp('Filtered out imports that are not satisfied by installed dependencies'), formatObject({ installed }))
+
+              /**
+               * If there are multiple imports that use the same name, we
+               * need to remove duplicates, selecting the best fit for each.
+               * The quality of the import is determined by the one with the
+               * latest satisfied dependency.
+               */
+
+              const bestNameVersions = new Map<string, ExtSettingImportRule>() // key = name, value = the whole import rule
+              installed.forEach((item) => {
+                const currentBest = bestNameVersions.get(item.name)
+                let itemIsBest = !currentBest || (!currentBest.dependency && !!item.dependency)
+
+                if (!itemIsBest && item.dependency && currentBest?.dependency) {
+                  const currentBestVersion = parseImportRuleDependency(currentBest.dependency).versionRange
+                  const itemVersion = parseImportRuleDependency(item.dependency).versionRange
+
+                  itemIsBest
+                  = !currentBestVersion
+                    || currentBestVersion.raw === itemVersion.raw
+                    || currentBestVersion.raw === '*' && itemVersion.raw !== '*'
+                    || semver.gte(semver.minVersion(itemVersion ?? '*')!, semver.minVersion(currentBestVersion ?? '*')!)
+                }
+
+                if (itemIsBest) {
+                  bestNameVersions.set(item.name, item)
+                }
+              })
+
+              logger.info(lgp('Resolved duplicate named imports'), formatObject({
+                bestNameVersions: Array.from(bestNameVersions.entries()).map(([name, item]) => ({ name, item })),
+              }))
+
+              const finalActiveImports = Array.from(bestNameVersions.values())
+
+              logger.info(lgp('Finished evaluating applicable imports'), formatObject({ finalActiveImports }))
+
+              return finalActiveImports.map((item) => {
+                const importStatement = `import * as ${item.name} from ${quoteCharacter}${item.source}${quoteCharacter}`
+                const labelDetail = '*'
+
+                return ({
+                  label: {
+                    label: item.name,
+                    detail: labelDetail,
+                    description: item.source,
+                  },
+                  kind: vscode.CompletionItemKind[item.kind ?? 'Variable'],
+                  additionalTextEdits: [textEditInsertAtStart(`${importStatement};\n`)],
+                  insertText: item.name,
+                  detail: `Add namespace import from "${item.source}"`,
+                  filterText: `${item.name}${labelDetail}`,
+                })
+              })
+            }
+            catch (error) {
+              logError('provideCompletionItems', error)
+            }
+          },
+        },
+      ))
+    })
+  }
+  catch (error) {
+    logError(lgp, error)
+  }
 })
 
 export { activate, deactivate }
