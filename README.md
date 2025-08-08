@@ -25,9 +25,11 @@ import * as z from 'zod'
 
 This rule will create the following import statement: `import * as z from 'zod'`. `name` defines the namespace (variable name) that will be used in the import statement, and `source` defines the path from which the import is made. By default, the extension will only show an import if it's source is detected in the nearest `package.json` file, so you don't have to worry about it showing imports for packages that are not installed.
 
-When auto-importing a namespace import, the extension will add an item to VS Code's auto-completion menu, marked with an "*", simply accept that suggestion to create the import statement.
+When auto-importing a namespace import, the extension will add an item to VS Code's auto-completion menu, marked with an "\*", simply accept that suggestion to create the import statement.
 
 ![Screenshot of Ace Imports in action](/doc-assets/zod-suggestion-screenshot.png)
+
+You can also create an import by running the "Ace Imports: Insert Import" command from the Command Palette.
 
 If the source of the import does not match the package name, you can specify the package name in the `dependency` field:
 
@@ -87,7 +89,7 @@ If you have multiple import rules with the same `name`, the one with the highest
 
 Now the extension will create `import * as z from 'zod/v4'` if you have zod version 4 installed, if you have a different version of `zod` installed it will create `import * as z from 'zod'`.
 
-*If two matching imports have the same dependency version, their priority is determined by the order they are defined in the settings, with the last one taking priority.*
+_If two matching imports have the same dependency version, their priority is determined by the order they are defined in the settings, with the last one taking priority._
 
 **Import Kind:** You can also specify the classification VSCode will apply to the import, which will affect the icon that is shown next to the suggestion item and possibly also the item's sorting order. This is done using the `kind` field, which accepts any of VS Code's `CompletionItemKind` enum values (when editting the settings your IDE will provide autocompletion for these). By default, the `Variable` kind is used, which is what a namespace import is actually classified as, so there isn't any situation where you need to change this, but it's there if you want to use it.
 
@@ -117,7 +119,7 @@ If you have some imports that your normally want to disable but may want enabled
 }
 ```
 
-Its important to note that we are referencing the import *ID*, which you have to define in the rule itself. So the above example requires you to have an import with `"id": "zod-v4"` defined in your settings.
+Its important to note that we are referencing the import _ID_, which you have to define in the rule itself. So the above example requires you to have an import with `"id": "zod-v4"` defined in your settings.
 
 Then in your workspace settings, you can re-enable the import by using the `ace-imports.workspaceAllowDisabled` setting:
 
@@ -128,6 +130,7 @@ Then in your workspace settings, you can re-enable the import by using the `ace-
 ```
 
 ### Quote Style
+
 You can specify the kind of quotes that should be used for the import statements using the `ace-imports.quoteStyle` setting. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used.
 
 ```json
@@ -136,23 +139,49 @@ You can specify the kind of quotes that should be used for the import statements
 }
 ```
 
+### Do Not Insert Semicolons
+
+If you don't want the extension to insert semicolons when creating import statements, you can disable them:
+
+```json
+{
+  "ace-imports.insertSemicolons": false
+}
+```
+
+### Disable Auto-Completion
+
+If you don't want the extension to provide auto-completion suggestions for the imports, you can disable them:
+
+```json
+{
+  "ace-imports.disableSuggestions": true
+}
+```
+
+With this setting enabled the only way to insert an import is by running the "Ace Imports: Insert Import" command from the Command Palette.
+
 ### Full Example Config
 
 ```json
 {
-  "ace-imports.imports": [{
-    "name": "z",
-    "source": "zod"
-  }, {
-    "name": "z",
-    "source": "zod/v4",
-    "dependency": "zod@^4.0.0"
-  }, {
-    "name": "z",
-    "source": "zod/mini",
-    "dependency": "zod@>=4",
-    "id": "zod-mini"
-  }],
+  "ace-imports.imports": [
+    {
+      "name": "z",
+      "source": "zod"
+    },
+    {
+      "name": "z",
+      "source": "zod/v4",
+      "dependency": "zod@^4.0.0"
+    },
+    {
+      "name": "z",
+      "source": "zod/mini",
+      "dependency": "zod@>=4",
+      "id": "zod-mini"
+    }
+  ],
   "ace-imports.disabled": ["zod-mini"]
 }
 ```
@@ -180,6 +209,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 ## Todo
 
 ### Baseline
+
 - [x] Prevent duplicate import statements
 - [x] Description comment on left side of auto import item
 - [x] Only show imports from installed packages
@@ -197,37 +227,38 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Show warning for node_modules any time a non-ignored package.json file is found in a node_modules folder
   - When watching changes
   - When constructing dependencies
-- [ ] Add a command for creating imports and an option to disable completions (so the only way to create an import is through the command, in case users are annoyed by the auto-completion suggestions that are always present)
+- [x] Add a command for creating imports and an option to disable completions (so the only way to create an import is through the command, in case users are annoyed by the auto-completion suggestions that are always present)
 - [ ] Publish to extension marketplace
 
 ### Later Improvements
 
 #### Features
+
+- [ ] Infer semicolon usage from config files (eg; eslint/prettier) or from the code itself
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
 - [ ] Support default imports (eg; `import X from 'x'`)
 - [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Allow import rules to be scoped to specific files (glob is probably best way to do this) (eg; allow `zod/mini` import in `web` folder, but not in `server` folder)
 - [ ] Option to specify dependency detection "rules" for different files, options of rules include...
- - What files are a rule applied too
- - What `package.json` file(s) to check
- - What kind of dependencies to check (eg; `dependencies`, `devDependencies`, `optionalDependencies`)
-- [ ] Handle multiple workspace folders
- - use `useWorkspaceFolders` function from `reactive-vscode`
- - Scope dependencies to workspace folders by prefixing globs with workspace folder path
- - use `vscode.workspace.getWorkspaceFolder` to determine which workspace folder a file belongs to
+  - What files are a rule applied too
+  - What `package.json` file(s) to check
+  - What kind of dependencies to check (eg; `dependencies`, `devDependencies`, `optionalDependencies`)
 
 #### Other Improvements
+
 - [x] Handle disposal of completion provider (https://kermanx.com/reactive-vscode/guide/disposable.html)
 - [ ] Split up parsed settings into individual reactive variables, so that they can be subscribed to individually, rather than having to subscribe to the whole settings object
 - [ ] Move quote detection into `resolveCompletionItem` (inside the `registerCompletionItemProvider` call) method to improve performance
 - [ ] Improve mechanism for determining if a package is installed
 
 ### Testing
+
 - [ ] Scoped packages eg; (`@scope/package`)
 
 ### Documentation
+
 - [x] Basic Usage
-- [ ] Disabling + Re-enabling with "!"
+- [x] Disabling
 - [x] Import rule dependency + collision resolution
 - [ ] Move development documentation to a separate file
 - [ ] Limitation that the generated suggestions will always be present even when it doesn't fit the context (I don't know of any way to fix this, if someone does please reach out)

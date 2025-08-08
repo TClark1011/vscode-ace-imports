@@ -33,7 +33,12 @@
     "onStartupFinished"
   ],
   "contributes": {
-    "commands": [],
+    "commands": [{
+      "category": "Ace Imports",
+      "command": "ace-imports.insertImport",
+      "title": "Insert Import",
+      "enablement": "resourceLangId == 'typescript' || resourceLangId == 'javascript' || resourceLangId == 'typescriptreact' || resourceLangId == 'javascriptreact'"
+    }],
     "configuration": {
       "type": "object",
       "title": "Ace Imports",
@@ -231,6 +236,16 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "If Ace Imports detects a change in a package.json file inside a `node_modules` directory that is not ignored, it will show a warning. This setting can be used to disable that warning."
+        },
+        "ace-imports.insertSemicolon": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Should a semicolon be inserted at the end of the import statement? Defaults to `true`."
+        },
+        "ace-imports.disableSuggestions": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "If set to `true`, Ace Imports will not show any intellisense suggestions in the editor. If this option is enabled, you will only be able to insert new imports via the #ace-imports.insertImport# command."
         }
       }
     }

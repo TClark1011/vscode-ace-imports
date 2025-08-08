@@ -17,4 +17,6 @@ export const parsedConfigRef = computed(() => ({
   packageMatcherGlobs: rawConfig.packageMatcher,
   packageMatcherIgnoreGlobs: rawConfig.packageMatcherIgnore,
   disableNodeModulesWarning: rawConfig.disableNodeModulesWarning,
+  insertSemicolon: rawConfig.insertSemicolon,
+  disableSuggestions: rawConfig.disableSuggestions,
 }))

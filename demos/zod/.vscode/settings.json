@@ -15,7 +15,13 @@
       "name": "Joi"
     }
   ],
+  "ace-imports.workspaceImports": [
+    {
+      "source": "zod/v4",
+      "name": "z",
+      "dependency": "zod@^4"
+    }
+  ],
   "ace-imports.disabled": ["zod-mini"],
-  // "ace-imports.workspaceAllowDisabled": ["zod-mini"],
-  "ace-imports.disableNodeModulesWarning": true
+  "ace-imports.insertSemicolon": false
 }
