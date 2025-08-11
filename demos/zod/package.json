@@ -1,9 +1,11 @@
 {
   "name": "zod-test",
   "devDependencies": {
+    "@types/is-even": "^1.0.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "is-even": "^1.0.0",
     "zod": "^4.0.15"
   }
 }

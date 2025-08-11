@@ -16,7 +16,9 @@ export const parsedConfigRef = computed(() => ({
   quoteStyle: rawConfig.quoteStyle === 'auto' ? undefined : rawConfig.quoteStyle,
   packageMatcherGlobs: rawConfig.packageMatcher,
   packageMatcherIgnoreGlobs: rawConfig.packageMatcherIgnore,
-  disableNodeModulesWarning: rawConfig.disableNodeModulesWarning,
+  disableNodeModulesWarning: rawConfig['advanced.disableNodeModulesWarning'],
   insertSemicolon: rawConfig.insertSemicolon,
   disableSuggestions: rawConfig.disableSuggestions,
+  organizeImportsOnInsert: rawConfig.organizeImportsOnInsert,
+  formatDocumentOnInsert: rawConfig.formatDocumentOnInsert,
 }))

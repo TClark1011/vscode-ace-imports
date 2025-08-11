@@ -33,12 +33,25 @@
     "onStartupFinished"
   ],
   "contributes": {
-    "commands": [{
-      "category": "Ace Imports",
-      "command": "ace-imports.insertImport",
-      "title": "Insert Import",
-      "enablement": "resourceLangId == 'typescript' || resourceLangId == 'javascript' || resourceLangId == 'typescriptreact' || resourceLangId == 'javascriptreact'"
-    }],
+    "commands": [
+      {
+        "category": "Ace Imports",
+        "command": "ace-imports.insertImport",
+        "title": "Insert Import",
+        "enablement": "resourceLangId == 'typescript' || resourceLangId == 'javascript' || resourceLangId == 'typescriptreact' || resourceLangId == 'javascriptreact'"
+      },
+      {
+        "category": "Ace Imports",
+        "command": "ace-imports.debug_printState",
+        "title": "[DEBUG] Print State",
+        "enablement": "config.ace-imports.advanced.debug"
+      },
+      {
+        "category": "Ace Imports",
+        "command": "ace-imports.postInsertActions",
+        "title": "Run Post Insert Actions"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Ace Imports",
@@ -46,6 +59,7 @@
         "ace-imports.imports": {
           "type": "array",
           "default": [],
+          "order": 1,
           "items": {
             "type": "object",
             "properties": {
@@ -114,9 +128,62 @@
           },
           "markdownDescription": "Imports to be used in the extension. IDs are only used for disabling imports via #ace-imports.disabled# or enabling them (if already disabled) via #ace-imports.workspaceAllowDisabled#. The `kind` property is used to determine how the import should be displayed in the editor. If not specified, it defaults to `Variable`. The `dependency` property is used to specify the dependency from which the import should be taken. If not specified, it defaults to the current workspace."
         },
+        "ace-imports.quoteStyle": {
+          "type": "string",
+          "default": "auto",
+          "order": 2,
+          "enum": [
+            "single",
+            "double",
+            "backtick",
+            "auto"
+          ],
+          "markdownDescription": "The quote style to use for imports. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used."
+        },
+        "ace-imports.insertSemicolon": {
+          "type": "boolean",
+          "default": true,
+          "order": 3,
+          "markdownDescription": "Should a semicolon be inserted at the end of the import statement? Defaults to `true`."
+        },
+        "ace-imports.organizeImportsOnInsert": {
+          "type": "boolean",
+          "default": false,
+          "order": 4,
+          "markdownDescription": "Should the import be organized after inserting it? This will run the 'Organize Imports' command after inserting an import."
+        },
+        "ace-imports.formatDocumentOnInsert": {
+          "type": "boolean",
+          "default": false,
+          "order": 5,
+          "markdownDescription": "Should the document be formatted after inserting an import? This will run the 'Format Document' command after inserting an import."
+        },
+        "ace-imports.packageMatcher": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/package.json"
+          ],
+          "order": 6,
+          "markdownDescription": "List of paths or globs used to find 'package.json' files to check for installed dependencies. Paths are relative from the workspace root and globs are scoped to the workspace. Changes will only be tracked in files that are named 'package.json'."
+        },
+        "ace-imports.packageMatcherIgnore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**"
+          ],
+          "order": 7,
+          "markdownDescription": "List of paths or globs to ignore when searching for package.json files. By default files in `node_modules` are ignored."
+        },
         "ace-imports.workspaceImports": {
           "type": "array",
           "default": [],
+          "order": 8,
           "items": {
             "type": "object",
             "properties": {
@@ -191,6 +258,7 @@
             "type": "string"
           },
           "default": [],
+          "order": 9,
           "markdownDescription": "List of import IDs to disable"
         },
         "ace-imports.workspaceAllowDisabled": {
@@ -199,53 +267,26 @@
             "type": "string"
           },
           "default": [],
+          "order": 10,
           "markdownDescription": "List of disabled import IDs (`ace-imports.disabled`) that are allowed in the workspace. This allows you to disable an import globally, but allow it in a specific workspace."
-        },
-        "ace-imports.quoteStyle": {
-          "type": "string",
-          "default": "auto",
-          "enum": [
-            "single",
-            "double",
-            "backtick",
-            "auto"
-          ],
-          "markdownDescription": "The quote style to use for imports. Can be `single`, `double`, `backtick` or `auto`, defaults to `auto`. If set to `auto` it will attempt to detect the quote style by looking at eslint/prettier config files, or the quote style used in the code. If no quote style can be detected double quotes will be used."
-        },
-        "ace-imports.packageMatcher": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "**/package.json"
-          ],
-          "markdownDescription": "List of paths or globs used to find 'package.json' files to check for installed dependencies. Paths are relative from the workspace root and globs are scoped to the workspace. Changes will only be tracked in files that are named 'package.json'."
-        },
-        "ace-imports.packageMatcherIgnore": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "**/node_modules/**"
-          ],
-          "markdownDescription": "List of paths or globs to ignore when searching for package.json files. By default files in `node_modules` are ignored."
-        },
-        "ace-imports.disableNodeModulesWarning": {
-          "type": "boolean",
-          "default": false,
-          "markdownDescription": "If Ace Imports detects a change in a package.json file inside a `node_modules` directory that is not ignored, it will show a warning. This setting can be used to disable that warning."
-        },
-        "ace-imports.insertSemicolon": {
-          "type": "boolean",
-          "default": true,
-          "markdownDescription": "Should a semicolon be inserted at the end of the import statement? Defaults to `true`."
         },
         "ace-imports.disableSuggestions": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "If set to `true`, Ace Imports will not show any intellisense suggestions in the editor. If this option is enabled, you will only be able to insert new imports via the #ace-imports.insertImport# command."
+          "markdownDescription": "If set to `true`, Ace Imports will not show any intellisense suggestions in the editor. If this option is enabled, you will only be able to insert new imports via the #ace-imports.insertImport# command.",
+          "order": 9997
+        },
+        "ace-imports.advanced.disableNodeModulesWarning": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "If Ace Imports detects a change in a package.json file inside a `node_modules` directory that is not ignored, it will show a warning. This setting can be used to disable that warning.",
+          "order": 9998
+        },
+        "ace-imports.advanced.debug": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "If set to `true`, a command will be available to print debugging information about the current state of the extension to the output channel. Regular debugging information will be printed to the output channel regardless of this setting.",
+          "order": 9999
         }
       }
     }

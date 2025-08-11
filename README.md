@@ -149,6 +149,17 @@ If you don't want the extension to insert semicolons when creating import statem
 }
 ```
 
+### Format Document/Organize Imports on Insert
+
+You can configure the extension to automatically run the "Organize Imports" and/or "Format Document" actions after an import is added. This can help keep your code clean and organized.
+
+```json
+{
+  "ace-imports.organizeImportsOnInsert": true,
+  "ace-imports.formatDocumentOnInsert": true
+}
+```
+
 ### Disable Auto-Completion
 
 If you don't want the extension to provide auto-completion suggestions for the imports, you can disable them:
@@ -243,6 +254,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
   - What files are a rule applied too
   - What `package.json` file(s) to check
   - What kind of dependencies to check (eg; `dependencies`, `devDependencies`, `optionalDependencies`)
+- [ ] Option to define an array of commands to run after an import is added
 
 #### Other Improvements
 

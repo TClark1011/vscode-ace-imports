@@ -23,5 +23,7 @@
     }
   ],
   "ace-imports.disabled": ["zod-mini"],
-  "ace-imports.insertSemicolon": false
+  "ace-imports.insertSemicolon": false,
+  "ace-imports.organizeImportsOnInsert": true,
+  "ace-imports.advanced.debug": true
 }
