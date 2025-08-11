@@ -25,7 +25,9 @@ export function logProgressMessageBuilderFactory(
 
   return (message?: string, numbered = true) => {
     const label = `[${contextLabel}]${numbered ? ` #${callNumber}` : ''}${message ? ` (${message})` : ''}: `
-    callNumber++
+    if (numbered) {
+      callNumber++
+    }
     return label
   }
 }
@@ -35,7 +37,7 @@ export function logProgressMessageBuilderFactory(
  * stringification of the error object.
  */
 export function logError(contextName: string | ReturnType<typeof logProgressMessageBuilderFactory>, error: unknown): void {
-  const contextNameString = typeof contextName === 'string' ? contextName : contextName(undefined,false)
+  const contextNameString = typeof contextName === 'string' ? contextName : contextName(undefined, false)
 
   const stringifiedError: string = match(error)
     .with(P.instanceOf(Error), err => formatObject({

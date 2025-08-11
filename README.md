@@ -230,7 +230,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Custom extension icon
 - [x] Option to specify package.json file(s) to check for installed packages
 - [x] Support javascript, javascriptreact and typescriptreact files
-- [ ] Option to run "sort import" and/or "format document" actions after import is added
+- [x] Option to run "sort import" and/or "format document" actions after import is added
 - [x] Refactor to make clear distinction between specific package version and version specifier (eg; ^4.0.0)
 - [x] Clear package.json cache when package.json changes
 - [x] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
@@ -245,6 +245,8 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 
 #### Features
 
+- [ ] Command to search for imports that would fix missing variable errors in the current file (eg; if a a file has an error because variables `z` and `lodash` are not defined and their are imports that match those names, then the command will automatically import them)
+- [ ] Option to limit to a single package.json file (use the first found by the vscode API)
 - [ ] Infer semicolon usage from config files (eg; eslint/prettier) or from the code itself
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
 - [ ] Support default imports (eg; `import X from 'x'`)

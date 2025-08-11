@@ -19,7 +19,8 @@
     {
       "source": "zod/v4",
       "name": "z",
-      "dependency": "zod@^4"
+      "dependency": "zod@^4",
+      "id": "zod-v4"
     }
   ],
   "ace-imports.disabled": ["zod-mini"],

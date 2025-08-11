@@ -19,8 +19,19 @@
             "activeOnStart": true,
             "beginsPattern": "Build start",
             "endsPattern": "(B|Reb)uild complete"
-          }
+          },
+          "severity": "info"
+        },
+        {
+          "base": "$tsc-watch",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "Build start",
+            "endsPattern": "Build failed"
+          },
+          "severity": "error"
         }
+
       ],
       "group": "build"
     }

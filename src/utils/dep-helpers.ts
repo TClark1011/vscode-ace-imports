@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
+import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from './logger'
 import { memo } from './memo'
 
 const semverSchema = z.string().refine(
@@ -61,15 +62,27 @@ function readPackageJson(path: string): PackageJson {
   return packageJsonSchema.parse(untypedParsed)
 }
 export function getActiveDependencySpecifiersFromPackage(packagePath: string): Map<string, semver.Range> {
-  const packageJson = readPackageJson(packagePath)
+  const lgp = logProgressMessageBuilderFactory(getActiveDependencySpecifiersFromPackage.name)
+  try {
+    logger.info(lgp('Starting reading package.json from'), packagePath)
 
-  const dependencies = new Map<string, semver.Range>();
+    const packageJson = readPackageJson(packagePath)
+    logger.info(lgp('Parsed package.json file'), formatObject(packageJson))
 
-  [packageJson.dependencies, packageJson.devDependencies, packageJson.peerDependencies].forEach((value) => {
-    Object.entries(value ?? {}).forEach(([name, version]) => {
-      dependencies.set(name, new semver.Range(version))
+    const dependencies = new Map<string, semver.Range>();
+
+    [packageJson.dependencies, packageJson.devDependencies, packageJson.peerDependencies].forEach((value) => {
+      Object.entries(value ?? {}).forEach(([name, version]) => {
+        dependencies.set(name, new semver.Range(version))
+      })
     })
-  })
 
-  return dependencies
+    logger.info(lgp('Extracted dependencies'), formatObject(dependenciesToPrintableObject(dependencies)))
+
+    return dependencies
+  }
+  catch (error) {
+    logError(lgp, error)
+    throw error
+  }
 }

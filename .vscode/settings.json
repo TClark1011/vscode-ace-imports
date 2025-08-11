@@ -45,5 +45,9 @@
     "json",
     "jsonc",
     "yaml"
+  ],
+
+  "ace-imports.packageMatcher": [
+    "package.json"
   ]
 }
