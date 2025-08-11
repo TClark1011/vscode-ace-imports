@@ -245,7 +245,8 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 
 #### Features
 
-- [ ] Command to search for imports that would fix missing variable errors in the current file (eg; if a a file has an error because variables `z` and `lodash` are not defined and their are imports that match those names, then the command will automatically import them)
+- [ ] Support `require` statements (eg; `const z = require('zod')`)
+- [ ] Command to apply imports that would fix missing variable errors in the current file (eg; if a a file has an error because variables `z` and `lodash` are not defined and their are imports that match those names, then the command will automatically import them)
 - [ ] Option to limit to a single package.json file (use the first found by the vscode API)
 - [ ] Infer semicolon usage from config files (eg; eslint/prettier) or from the code itself
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
