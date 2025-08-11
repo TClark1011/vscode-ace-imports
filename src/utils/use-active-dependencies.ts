@@ -104,7 +104,7 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
         )
         function listener(uri: vscode.Uri, eventKind: vscode.FileChangeType) {
           logger.info(
-            `Package file ${vscode.FileChangeType[eventKind].toLowerCase()}: `,
+            lgp(`Package file ${vscode.FileChangeType[eventKind].toLowerCase()}`),
             uri.fsPath,
           )
 
@@ -150,7 +150,7 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
         ...fileToDependenciesRef.value.values(),
       )
       logger.info(
-        'Computed active dependencies: ',
+        lgp('Computed active dependencies', false),
         formatObject(dependenciesToPrintableObject(combinedDependencies)),
       )
       return combinedDependencies
