@@ -235,7 +235,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [x] Clear package.json cache when package.json changes
 - [x] Add new "importsExt" and "disabledExt" settings, which have the exact same typing as the "imports" and "disabled" settings, but allow you to extend your user settings with workspace settings by existing as different settings. Their arrays are appended to the non "Ext" settings, so you can disable an import in your user settings, but enable it in your workspace settings.
 - [x] Option for quote style (single or double quotes)
-- [ ] Show warning for node_modules any time a non-ignored package.json file is found in a node_modules folder
+- [x] Show warning for node_modules any time a non-ignored package.json file is found in a node_modules folder
   - When watching changes
   - When constructing dependencies
 - [x] Add a command for creating imports and an option to disable completions (so the only way to create an import is through the command, in case users are annoyed by the auto-completion suggestions that are always present)
@@ -261,6 +261,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 
 #### Other Improvements
 
+- [ ] Check for dependencies in lock files instead of `package.json` files
 - [x] Handle disposal of completion provider (https://kermanx.com/reactive-vscode/guide/disposable.html)
 - [ ] Split up parsed settings into individual reactive variables, so that they can be subscribed to individually, rather than having to subscribe to the whole settings object
 - [ ] Move quote detection into `resolveCompletionItem` (inside the `registerCompletionItemProvider` call) method to improve performance

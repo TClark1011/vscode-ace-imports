@@ -1,7 +1,8 @@
+import type semver from 'semver'
 import fs from 'node:fs'
-import semver from 'semver'
 import * as z from 'zod/v4'
 import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from '../logger'
+import { semverRangeSchema } from './parse-rule-dependency'
 
 const dependencyRecordSchema = z.record(z.string(), z.string())
 
@@ -28,17 +29,23 @@ export function getActiveDependencySpecifiersFromPackage(packagePath: string): M
     logger.info(lgp('Starting reading package.json from'), packagePath)
 
     const packageJson = readPackageJson(packagePath)
-    logger.info(lgp('Parsed package.json file'), formatObject(packageJson))
+    logger.info(lgp('Parsed package.json file'), formatObject({
+      path: packagePath,
+      parsedPackageJson: packageJson,
+    }))
 
     const dependencies = new Map<string, semver.Range>();
 
     [packageJson.dependencies, packageJson.devDependencies, packageJson.peerDependencies].forEach((value) => {
       Object.entries(value ?? {}).forEach(([name, version]) => {
-        dependencies.set(name, new semver.Range(version))
+        dependencies.set(name, semverRangeSchema.parse(version))
       })
     })
 
-    logger.info(lgp('Extracted dependencies'), formatObject(dependenciesToPrintableObject(dependencies)))
+    logger.info(lgp('Extracted dependencies'), formatObject({
+      path: packagePath,
+      dependencies: dependenciesToPrintableObject(dependencies),
+    }))
 
     return dependencies
   }

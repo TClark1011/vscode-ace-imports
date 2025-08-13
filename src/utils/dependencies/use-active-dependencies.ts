@@ -1,11 +1,13 @@
 import type { Ref } from 'reactive-vscode'
 import type semver from 'semver'
-import { matchesGlob } from 'node:path/posix'
+import { isMatch as matchesGlob } from 'micromatch'
 import { computed, ref, useWorkspaceFolders, watchEffect } from 'reactive-vscode'
 import * as vscode from 'vscode'
 import { parsedConfigRef } from '../../config'
 import { lastFoundPackageFilesRef } from '../../state'
 import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from '../logger'
+import { mergeGlobs } from '../merge-globs'
+import { showNodeModulesWarningIfEnabled } from '../node-modules-warning'
 import { getActiveDependencySpecifiersFromPackage } from './get-package-dependencies'
 
 export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
@@ -14,16 +16,18 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
     logger.info(lgp('Starting'))
 
     const combinedPackageMatcherGlobRef = computed(
-      () => `{${parsedConfigRef.value.packageMatcherGlobs.join(',')}}`,
+      () => mergeGlobs(parsedConfigRef.value.packageMatcherGlobs),
     )
     const combinedPackageMatcherIgnoreGlobRef = computed(
-      () => `{${parsedConfigRef.value.packageMatcherIgnoreGlobs.join(',')}}`,
+      () => mergeGlobs(parsedConfigRef.value.packageMatcherIgnoreGlobs),
     )
 
     // Maps file paths of package.json files to their dependencies
     const fileToDependenciesRef = ref<Map<string, Map<string, semver.Range>>>(
       new Map(),
     )
+
+    let hasFiredInitialNodeModulesWarning = false
 
     // Detect package.json file dependencies at startup and whenever the extension settings
     // affecting package file detection change
@@ -55,6 +59,14 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
           .filter(file => file.fsPath.endsWith('package.json'))
           .map(uri => uri.fsPath)
 
+        const nodeModulesPaths = packageFilePaths.filter(path =>
+          path.includes('node_modules/'),
+        )
+        if (nodeModulesPaths.length > 0 && !hasFiredInitialNodeModulesWarning) {
+          hasFiredInitialNodeModulesWarning = true
+          showNodeModulesWarningIfEnabled(nodeModulesPaths)
+        }
+
         // If package file detection settings have changed such that a previously detected
         // package file should no longer be tracked, we discard it
         const freshlyDiscardedPackageFiles = [
@@ -84,6 +96,7 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
 
     const workspaceFoldersRef = useWorkspaceFolders()
 
+    // Setup file watchers to detect changes in package.json files
     watchEffect((onCleanup) => {
       const lgp = logProgressMessageBuilderFactory(
         `${useActiveDependencies.name}_watchEffect_fileWatchers`,
@@ -104,15 +117,22 @@ export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
         )
         function listener(uri: vscode.Uri, eventKind: vscode.FileChangeType) {
           logger.info(
-            lgp(`Package file ${vscode.FileChangeType[eventKind].toLowerCase()}`),
+            lgp(`Package file ${vscode.FileChangeType[eventKind].toLowerCase()}`, false),
             uri.fsPath,
           )
 
-          if (!uri.fsPath.endsWith('package.json') // is not package.json file
-            || workspaceIgnorePatterns.some(ignorePattern => matchesGlob(uri.fsPath, ignorePattern),
-            ) // matches any ignore pattern
-          ) {
+          const isPackageFile = uri.fsPath.endsWith('package.json')
+          const isIgnored = workspaceIgnorePatterns.some(ignorePattern =>
+            matchesGlob(uri.fsPath, ignorePattern, { dot: true }),
+          )
+          if (!isPackageFile || isIgnored)
             return
+
+          const isWithinNodeModules = uri.fsPath.includes('node_modules/')
+          if (isWithinNodeModules) {
+            showNodeModulesWarningIfEnabled([uri.fsPath], {
+              workspaceIgnorePatterns,
+            })
           }
 
           if (eventKind === vscode.FileChangeType.Deleted) {

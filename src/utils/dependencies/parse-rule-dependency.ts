@@ -2,6 +2,13 @@ import semver from 'semver'
 import { match, P } from 'ts-pattern'
 import * as z from 'zod/v4'
 
+export const semverRangeSchema = z.string().or(z.instanceof(semver.Range)).pipe(z.transform((value) => {
+  if (value === 'latest') {
+    return new semver.Range('*') // Treat 'latest' as any version
+  }
+  return new semver.Range(value)
+}))
+
 const semverSchema = z.string().refine(
   value => semver.valid(value) || semver.validRange(value),
   {
