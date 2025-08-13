@@ -27,7 +27,7 @@ This rule will create the following import statement: `import * as z from 'zod'`
 
 When auto-importing a namespace import, the extension will add an item to VS Code's auto-completion menu, marked with an "\*", simply accept that suggestion to create the import statement.
 
-![Screenshot of Ace Imports in action](/doc-assets/zod-suggestion-screenshot.png)
+![Screenshot of Ace Imports in action](./doc-assets/zod-suggestion-screenshot.png)
 
 You can also create an import by running the "Ace Imports: Insert Import" command from the Command Palette.
 
