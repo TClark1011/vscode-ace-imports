@@ -1,5 +1,5 @@
-import type { ExtSettingImportRule, QuoteStyle } from '../types'
-import { quoteCharacters } from './quote-style'
+import type { ExtSettingImportRule, QuoteStyle } from '../../types'
+import { quoteCharacters } from '../quotes/quote-characters'
 
 interface ComposeImportCodeInput {
   importRule: ExtSettingImportRule

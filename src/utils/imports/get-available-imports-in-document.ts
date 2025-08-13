@@ -1,11 +1,11 @@
 import type * as vscode from 'vscode'
-import type { ExtSettingImportRule, QuoteStyle } from '../types'
+import type { ExtSettingImportRule, QuoteStyle } from '../../types'
 import semver from 'semver'
-import { parsedConfigRef } from '../config'
-import { disabledImportIds } from '../state'
-import { parseImportRuleDependency } from './dep-helpers'
-import { formatObject, logError, logger, logProgressMessageBuilderFactory } from './logger'
-import { getQuoteStyleUsedInCode } from './quote-style'
+import { parsedConfigRef } from '../../config'
+import { disabledImportIds } from '../../state'
+import { parseImportRuleDependency } from '../dependencies/parse-rule-dependency'
+import { formatObject, logError, logger, logProgressMessageBuilderFactory } from '../logger'
+import { getQuoteStyleUsedInCode } from '../quotes/get-code-quote-style'
 
 interface GetAvailableImportsInDocumentInput {
   document: vscode.TextDocument

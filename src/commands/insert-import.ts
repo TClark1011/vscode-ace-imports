@@ -4,8 +4,8 @@ import type { QuoteStyle } from '../types'
 import * as vscode from 'vscode'
 import { parsedConfigRef } from '../config'
 import * as Meta from '../generated/meta'
-import { composeImportCode } from '../utils/compose-import-code'
-import { getAvailableImportsInDocument } from '../utils/get-available-imports-in-document'
+import { composeImportCode } from '../utils/imports/compose-import-code'
+import { getAvailableImportsInDocument } from '../utils/imports/get-available-imports-in-document'
 import { logError, logger, logProgressMessageBuilderFactory } from '../utils/logger'
 
 interface PerformInsertImportCommandInput {

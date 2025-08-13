@@ -15,9 +15,10 @@ import { performInsertImportCommand } from './commands/insert-import'
 import { performPostInsertActionsCommand } from './commands/post-insert-actions'
 import { parsedConfigRef } from './config'
 import * as Meta from './generated/meta'
-import { composeImportCode } from './utils/compose-import-code'
+import { useActiveDependencies } from './utils/dependencies/use-active-dependencies'
 import { env } from './utils/env'
-import { getAvailableImportsInDocument } from './utils/get-available-imports-in-document'
+import { composeImportCode } from './utils/imports/compose-import-code'
+import { getAvailableImportsInDocument } from './utils/imports/get-available-imports-in-document'
 import {
   formatObject,
   logError,
@@ -26,8 +27,7 @@ import {
 } from './utils/logger'
 import {
   getQuoteStyleFromConfig,
-} from './utils/quote-style'
-import { useActiveDependencies } from './utils/use-active-dependencies'
+} from './utils/quotes/get-workspace-config-quote-style'
 import { textEditInsertAtStart } from './utils/vsc-helpers'
 
 const LANGUAGES = [

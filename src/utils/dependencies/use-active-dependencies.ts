@@ -3,10 +3,10 @@ import type semver from 'semver'
 import { matchesGlob } from 'node:path/posix'
 import { computed, ref, useWorkspaceFolders, watchEffect } from 'reactive-vscode'
 import * as vscode from 'vscode'
-import { parsedConfigRef } from '../config'
-import { lastFoundPackageFilesRef } from '../state'
-import { getActiveDependencySpecifiersFromPackage } from './dep-helpers'
-import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from './logger'
+import { parsedConfigRef } from '../../config'
+import { lastFoundPackageFilesRef } from '../../state'
+import { dependenciesToPrintableObject, formatObject, logError, logger, logProgressMessageBuilderFactory } from '../logger'
+import { getActiveDependencySpecifiersFromPackage } from './get-package-dependencies'
 
 export function useActiveDependencies(): Ref<Map<string, semver.Range>> {
   const lgp = logProgressMessageBuilderFactory(useActiveDependencies.name)

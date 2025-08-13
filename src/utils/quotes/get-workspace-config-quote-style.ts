@@ -1,44 +1,15 @@
-import type { QuoteStyle } from '../types'
-import type { ConfigFileType } from './fs-helpers'
+import type { QuoteStyle } from '../../types'
+import type { ConfigFileType } from '../fs-helpers'
 import fs from 'node:fs'
 import path from 'node:path'
-import { configFileTypePropertyFinders, findFirstFileUpwards } from './fs-helpers'
-import { memo } from './memo'
-
-export function getQuoteStyleUsedInCode(text: string): QuoteStyle | undefined {
-  const singleQuoteRegex = /'/g
-  const doubleQuoteRegex = /"/g
-  const backtickRegex = /`/g
-
-  const singleQuoteCount = (text.match(singleQuoteRegex) || []).length
-  const doubleQuoteCount = (text.match(doubleQuoteRegex) || []).length
-  const backtickCount = (text.match(backtickRegex) || []).length
-
-  if (singleQuoteCount > doubleQuoteCount && singleQuoteCount > backtickCount) {
-    return 'single'
-  }
-  else if (backtickCount > doubleQuoteCount && backtickCount > singleQuoteCount) {
-    return 'backtick'
-  }
-  else if (doubleQuoteCount >= singleQuoteCount && doubleQuoteCount >= backtickCount) {
-    return 'double'
-  }
-
-  return undefined // No clear quote style found
-}
-
-export const quoteCharacters: Record<QuoteStyle, string> = {
-  single: '\'',
-  double: '"',
-  backtick: '`',
-}
+import { configFileTypePropertyFinders, findFirstFileUpwards } from '../fs-helpers'
 
 const prettierConfigFileNames = ['.prettierrc', '.prettierrc.json', '.prettierrc.js', '.prettierrc.yaml', '.prettierrc.toml']
 const eslintConfigFileNames = ['.eslintrc', '.eslintrc.json', '.eslintrc.js', '.eslintrc.yaml', '.eslintrc.toml']
 
 type QuoteConfigFileKind = 'prettier' | 'eslint'
 
-export const getQuoteStyleFromConfig = memo((workingPath: string): QuoteStyle | undefined => {
+export function getQuoteStyleFromConfig(workingPath: string): QuoteStyle | undefined {
   let configFileNames = prettierConfigFileNames.concat(eslintConfigFileNames)
 
   let quoteStyle: QuoteStyle | undefined
@@ -102,4 +73,4 @@ export const getQuoteStyleFromConfig = memo((workingPath: string): QuoteStyle | 
     }
   }
   return quoteStyle
-})
+}
