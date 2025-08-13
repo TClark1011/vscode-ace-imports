@@ -1,8 +1,9 @@
 import type { QuoteStyle } from '../../types'
-import type { ConfigFileType } from '../fs-helpers'
+import type { ConfigFileType } from '../config-file-reader'
 import fs from 'node:fs'
 import path from 'node:path'
-import { configFileTypePropertyFinders, findFirstFileUpwards } from '../fs-helpers'
+import { configFileTypePropertyFinders } from '../config-file-reader'
+import { findFileUpwards } from '../find-file-upwards'
 
 const prettierConfigFileNames = ['.prettierrc', '.prettierrc.json', '.prettierrc.js', '.prettierrc.yaml', '.prettierrc.toml']
 const eslintConfigFileNames = ['.eslintrc', '.eslintrc.json', '.eslintrc.js', '.eslintrc.yaml', '.eslintrc.toml']
@@ -15,7 +16,7 @@ export function getQuoteStyleFromConfig(workingPath: string): QuoteStyle | undef
   let quoteStyle: QuoteStyle | undefined
 
   while (quoteStyle === undefined && configFileNames.length > 0) {
-    const configFile = findFirstFileUpwards(
+    const configFile = findFileUpwards(
       configFileNames,
       workingPath,
     )
