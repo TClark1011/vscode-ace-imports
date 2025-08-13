@@ -68,7 +68,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 
 ### Testing
 
-- [ ] Scoped packages eg; (`@scope/package`)
+- [x] Scoped packages eg; (`@scope/package`)
 
 ### Documentation
 

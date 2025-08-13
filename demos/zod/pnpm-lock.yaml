@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@mobily/ts-belt':
+        specifier: ^3.13.1
+        version: 3.13.1
       is-even:
         specifier: ^1.0.0
         version: 1.0.0
@@ -23,6 +26,10 @@ importers:
         version: 5.9.2
 
 packages:
+
+  '@mobily/ts-belt@3.13.1':
+    resolution: {integrity: sha512-K5KqIhPI/EoCTbA6CGbrenM9s41OouyK8A03fGJJcla/zKucsgLbz8HNbeseoLarRPgyWJsUyCYqFhI7t3Ra9Q==}
+    engines: {node: '>= 10.*'}
 
   '@types/is-even@1.0.2':
     resolution: {integrity: sha512-qXDiw1zrRSrExwuJHRvxr5eGANlWscPwvQw3xURyax0GkY+fSwwei2uy0ReJBF2N0EeniUr+h2iD9e/KQNroaQ==}
@@ -55,6 +62,8 @@ packages:
     resolution: {integrity: sha512-2IVHb9h4Mt6+UXkyMs0XbfICUh1eUrlJJAOupBHUhLRnKkruawyDddYRCs0Eizt900ntIMk9/4RksYl+FgSpcQ==}
 
 snapshots:
+
+  '@mobily/ts-belt@3.13.1': {}
 
   '@types/is-even@1.0.2': {}
 

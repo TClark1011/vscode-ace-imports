@@ -21,6 +21,10 @@
       "name": "z",
       "dependency": "zod@^4",
       "id": "zod-v4"
+    },
+    {
+      "source": "@mobily/ts-belt",
+      "name": "Belt"
     }
   ],
   "ace-imports.disabled": ["zod-mini"],
