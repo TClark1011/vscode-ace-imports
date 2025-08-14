@@ -8,13 +8,13 @@
   "description": "Automatically create namespace imports (import * as X from 'x')",
   "author": "Thomas Clark <thomassiclark@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/TClark1011/ace-imports#readme",
+  "homepage": "https://github.com/TClark1011/vscode-ace-imports#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TClark1011/ace-imports"
+    "url": "https://github.com/TClark1011/vscode-ace-imports"
   },
   "bugs": {
-    "url": "https://github.com/TClark1011/ace-imports/issues"
+    "url": "https://github.com/TClark1011/vscode-ace-imports/issues"
   },
   "categories": [
     "Other"
