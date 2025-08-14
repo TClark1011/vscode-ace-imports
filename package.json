@@ -52,6 +52,14 @@
         "title": "Run Post Insert Actions"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "ace-imports.postInsertActions",
+          "when": "false"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Ace Imports",
@@ -290,6 +298,7 @@
         }
       }
     }
+
   },
   "scripts": {
     "build": "tsdown src/index.ts",
