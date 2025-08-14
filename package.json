@@ -2,7 +2,7 @@
   "publisher": "TClark1011",
   "name": "ace-imports",
   "displayName": "Ace Imports",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "private": true,
   "packageManager": "pnpm@10.4.1",
   "description": "Automatically create namespace imports (import * as X from 'x')",
