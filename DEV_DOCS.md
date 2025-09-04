@@ -38,7 +38,11 @@ To release the extension, run the "release" script, or you can run "pack" to cre
   - When watching changes
   - When constructing dependencies
 - [x] Add a command for creating imports and an option to disable completions (so the only way to create an import is through the command, in case users are annoyed by the auto-completion suggestions that are always present)
-- [ ] Publish to extension marketplace
+- [x] Publish to extension marketplace
+
+### Next Up
+- [ ] In node_modules warning, show the path of the violating package.json file
+- [ ] Support default imports (eg; `import X from 'x'`)
 
 ### Later Improvements
 
@@ -49,7 +53,6 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 - [ ] Option to limit to a single package.json file (use the first found by the vscode API)
 - [ ] Infer semicolon usage from config files (eg; eslint/prettier) or from the code itself
 - [ ] Support type imports (eg; `import type * as X from 'x'`)
-- [ ] Support default imports (eg; `import X from 'x'`)
 - [ ] Allow import dependency to be based on a file existing that matches a glob (eg; importing from `~/utils` if a `src/utils.ts` file exists)
 - [ ] Allow import rules to be scoped to specific files (glob is probably best way to do this) (eg; allow `zod/mini` import in `web` folder, but not in `server` folder)
 - [ ] Option to specify dependency detection "rules" for different files, options of rules include...
