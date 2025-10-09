@@ -19,6 +19,7 @@ To release the extension, run the "release" script, or you can run "pack" to cre
 ## Todo
 
 - [ ] **IMPORTANT:** Ignore `package.json` files that are placed in `node_modules` by package manager workspace functionality. I think many workspace features work by sym-linking the package folders into `node_modules`. Easiest way to check is to look at the `package.json` "name" field, and see if it matches a `package.json` file that is in the workspace.
+- [ ] Publish to "Open VSX" registry so it can be downloaded in VSCode forks
 
 ### Baseline
 
