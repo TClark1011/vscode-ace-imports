@@ -14,7 +14,9 @@ To test the extension, run the `Extension` launch configuration in VS Code. When
 
 ## Releasing
 
-To release the extension, run the "release" script, or you can run "pack" to create a `.vsix` file which can be installed manually.
+To release the extension, run the "release" script, which will release the extension to the VS Code Marketplace and Open VSX Registry. 
+
+Alternatively, you can run "pack" to create a `.vsix` file which can be installed manually. 
 
 ## Todo
 

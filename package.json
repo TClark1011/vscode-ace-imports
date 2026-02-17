@@ -8,6 +8,22 @@
   "description": "Automatically create namespace imports (import * as X from 'x')",
   "author": "Thomas Clark <thomassiclark@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsdown src/index.ts",
+    "dev": "nr build --watch --sourcemap",
+    "prepare": "nr generate",
+    "generate": "vscode-ext-gen --output src/generated/meta.ts",
+    "lint": "eslint .",
+    "vscode:prepublish": "nr build",
+    "publish:vscode": "nr build && vsce publish --no-dependencies",
+    "publish:openvsx": "nr build && ovsx publish --no-dependencies",
+    "publish": "nr build && vsce publish --no-dependencies && ovsx publish --no-dependencies",
+    "pack": "nr build && vsce package --no-dependencies",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "bump": "bumpp --push --commit --tag",
+    "release": "bumpp && nr publish"
+  },
   "homepage": "https://github.com/TClark1011/vscode-ace-imports#readme",
   "repository": {
     "type": "git",
@@ -298,21 +314,6 @@
         }
       }
     }
-
-  },
-  "scripts": {
-    "build": "tsdown src/index.ts",
-    "dev": "nr build --watch --sourcemap",
-    "prepare": "nr generate",
-    "generate": "vscode-ext-gen --output src/generated/meta.ts",
-    "lint": "eslint .",
-    "vscode:prepublish": "nr build",
-    "publish": "nr build && vsce publish --no-dependencies",
-    "pack": "nr build && vsce package --no-dependencies",
-    "test": "vitest",
-    "typecheck": "tsc --noEmit",
-    "bump": "bumpp --push --commit --tag",
-    "release": "bumpp && nr publish"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.2.1",
@@ -327,6 +328,7 @@
     "esno": "^4.8.0",
     "execa": "^9.6.0",
     "micromatch": "^4.0.8",
+    "ovsx": "^0.10.9",
     "pnpm": "^10.4.1",
     "reactive-vscode": "^0.2.10",
     "semver": "^7.7.2",
